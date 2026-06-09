@@ -67,43 +67,27 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   pointer-events: none;
   opacity: 0;
   transition: width .22s var(--ease), height .22s var(--ease), opacity .3s var(--ease);
-  /* glass arrow pointer — tip at the hotspot, frosted + a touch blurred */
   -webkit-clip-path: polygon(0 0, 0 73%, 19% 56%, 32% 87%, 45% 81%, 31% 52%, 57% 52%);
           clip-path: polygon(0 0, 0 73%, 19% 56%, 32% 87%, 45% 81%, 31% 52%, 57% 52%);
-  background: rgba(255,255,255,0.12);
-  -webkit-backdrop-filter: blur(2.5px) brightness(1.05) saturate(1.2);
-          backdrop-filter: blur(2.5px) brightness(1.05) saturate(1.2);
-  filter:
-    drop-shadow(0 0 0.6px rgba(255,255,255,0.95))
-    drop-shadow(0 0 1px rgba(255,255,255,0.6))
-    drop-shadow(0 2px 3px rgba(10,23,51,0.4));
+  background: #fff;
+  mix-blend-mode: difference;
 }
-/* faint inner highlight gives the arrow a glassy sheen */
-.lg-cursor .lg-spec {
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 46%);
-}
+.lg-cursor .lg-spec { display: none; }
 .lg-cursor.ready { opacity: 1; }
 .lg-cursor.hover { width: 30px; height: 41px; }
 .lg-cursor.down { width: 18px; height: 25px; }
-/* over light sections the rim reads with a crisp navy edge */
-.lg-cursor.on-light { filter:
-    drop-shadow(0 0 0.6px rgba(15,31,70,0.7))
-    drop-shadow(0 0 1px rgba(15,31,70,0.4))
-    drop-shadow(0 2px 3px rgba(15,31,70,0.25)); }
+.lg-cursor.on-light { /* handled automatically by mix-blend-mode */ }
 
-/* click ripple — a glass shockwave that expands from the click point */
+/* click ripple */
 .lg-ripple {
   position: fixed; z-index: 9998; pointer-events: none;
   width: 14px; height: 14px; border-radius: 50%;
   transform: translate(-50%, -50%) scale(0.3);
-  border: 1.5px solid rgba(255,255,255,0.8);
-  -webkit-backdrop-filter: blur(2px) brightness(1.08) saturate(1.25);
-          backdrop-filter: blur(2px) brightness(1.08) saturate(1.25);
-  box-shadow: 0 0 12px rgba(255,255,255,0.35), inset 0 0 8px rgba(255,255,255,0.25);
+  background: #fff;
+  mix-blend-mode: difference;
   animation: lg-ripple-anim .62s var(--ease) forwards;
 }
-.lg-ripple.on-light { border-color: rgba(15,31,70,0.5); box-shadow: 0 0 12px rgba(15,31,70,0.12), inset 0 0 8px rgba(255,255,255,0.4); }
+.lg-ripple.on-light { /* handled automatically by mix-blend-mode */ }
 @keyframes lg-ripple-anim {
   0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0.9; }
   100% { transform: translate(-50%, -50%) scale(4.6); opacity: 0; }
