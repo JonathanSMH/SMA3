@@ -180,13 +180,47 @@
             <div class="info fade d3"><div class="il" style="color:var(--accent)">Telefone</div><div class="iv">+55 35 9 9237-1441</div></div>
           </div>
         </div>
-        <form class="form fade d2" onsubmit="return false;" style="--line-dk:var(--line-lt);">
-          <div class="field" style="border-color:var(--line-lt);"><input type="text" id="f-nome" placeholder=" " style="color:var(--text-lt);" /><label for="f-nome" style="color:var(--dim-lt);">Nome</label></div>
-          <div class="field" style="border-color:var(--line-lt);"><input type="email" id="f-email" placeholder=" " style="color:var(--text-lt);" /><label for="f-email" style="color:var(--dim-lt);">E-mail</label></div>
-          <div class="field" style="border-color:var(--line-lt);"><input type="text" id="f-assunto" placeholder=" " style="color:var(--text-lt);" /><label for="f-assunto" style="color:var(--dim-lt);">Assunto</label></div>
-          <div class="field" style="border-color:var(--line-lt);"><textarea id="f-msg" rows="3" placeholder=" " style="color:var(--text-lt);"></textarea><label for="f-msg" style="color:var(--dim-lt);">Conte-nos sobre a operação</label></div>
-          <button class="btn" type="submit">Enviar mensagem</button>
+        <form class="form fade d2" id="contact-form" style="--line-dk:var(--line-lt);">
+          <div class="field" style="border-color:var(--line-lt);"><input type="text" id="f-nome" name="nome" placeholder=" " style="color:var(--text-lt);" required /><label for="f-nome" style="color:var(--dim-lt);">Nome</label></div>
+          <div class="field" style="border-color:var(--line-lt);"><input type="email" id="f-email" name="email" placeholder=" " style="color:var(--text-lt);" required /><label for="f-email" style="color:var(--dim-lt);">E-mail</label></div>
+          <div class="field" style="border-color:var(--line-lt);"><input type="text" id="f-assunto" name="assunto" placeholder=" " style="color:var(--text-lt);" /><label for="f-assunto" style="color:var(--dim-lt);">Assunto</label></div>
+          <div class="field" style="border-color:var(--line-lt);"><textarea id="f-msg" name="mensagem" rows="3" placeholder=" " style="color:var(--text-lt);"></textarea><label for="f-msg" style="color:var(--dim-lt);">Conte-nos sobre a operação</label></div>
+          <button class="btn" type="submit" id="form-btn">Enviar mensagem</button>
+          <div id="form-status" style="display:none;margin-top:16px;font-size:15px;"></div>
         </form>
+        <script>
+          document.getElementById('contact-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('form-btn');
+            const status = document.getElementById('form-status');
+            btn.disabled = true;
+            btn.textContent = 'Enviando…';
+            status.style.display = 'none';
+            try {
+              const res = await fetch('https://formspree.io/f/xeogqwja', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: new FormData(this)
+              });
+              if (res.ok) {
+                status.style.display = 'block';
+                status.style.color = 'var(--accent)';
+                status.textContent = 'Mensagem enviada. Retornaremos em breve.';
+                this.reset();
+                btn.textContent = 'Enviar mensagem';
+                btn.disabled = false;
+              } else {
+                throw new Error();
+              }
+            } catch {
+              status.style.display = 'block';
+              status.style.color = '#c0392b';
+              status.textContent = 'Erro ao enviar. Tente novamente ou entre em contato por e-mail.';
+              btn.textContent = 'Enviar mensagem';
+              btn.disabled = false;
+            }
+          });
+        </script>
       </div>
     </div>
   </section>
