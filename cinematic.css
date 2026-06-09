@@ -399,7 +399,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .contact h2 { font-size: clamp(38px, 5.6vw, 86px); letter-spacing: -0.035em; }
 .contact .c-info { margin-top: clamp(36px, 6vh, 60px); display: flex; flex-direction: column; gap: 0; }
 .info { padding: 18px 0; border-bottom: 1px solid var(--line-lt); }
-.info:first-child { border-top: 1px solid var(--line-lt); }
 .info .il { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 6px; }
 .info .iv { font-size: 17px; line-height: 1.5; }
 .form { display: flex; flex-direction: column; }
