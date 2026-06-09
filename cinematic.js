@@ -397,7 +397,7 @@
       if (!shown) { shown = true; lgCursor.classList.add("ready"); }
       // light/dark context → adapt the rim
       const el = document.elementFromPoint(mx, my);
-      const lightCtx = el && el.closest(".light, .keys-panel, .approach, #sobre, #contato");
+      const lightCtx = el && el.closest(".light, .keys-panel, .approach, .area-light, .area-solid, #sobre, #contato");
       lgCursor.classList.toggle("on-light", !!lightCtx);
       // hover affordance
       lgCursor.classList.toggle("hover", !!(el && el.closest(hoverSel)));
