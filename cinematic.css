@@ -217,7 +217,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .hs-loader-bar { width: 140px; height: 2px; background: rgba(15,31,70,0.18); overflow: hidden; border-radius: 2px; }
 .hs-loader-bar i { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .2s linear; }
 
-.hs-content { position: absolute; inset: 0; display: flex; align-items: center; z-index: 3; }
+.hs-content { position: absolute; inset: 0; display: flex; align-items: flex-start; padding-top: clamp(90px, 14vh, 160px); z-index: 3; }
 .hs-content .wrap { position: relative; width: 100%; }
 
 /* generic staged element: fades + lifts in/out */
