@@ -373,6 +373,12 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .metric .n .pre { font-size: 0.42em; vertical-align: middle; color: var(--dim-dk); margin-right: 4px; }
 .metric .l { margin-top: 18px; font-size: 14px; letter-spacing: 0.04em; color: var(--dim-dk); }
 @media (max-width: 760px) { .metric-grid { grid-template-columns: 1fr; gap: 50px; } }
+/* qualitative typology cards (replaces hard metrics) */
+.typo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 32px); margin-top: clamp(50px, 8vh, 96px); text-align: left; }
+.typo-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: clamp(26px, 2.4vw, 36px); }
+.typo-card h3 { font-size: clamp(20px, 2vw, 27px); letter-spacing: -0.02em; margin-bottom: 12px; }
+.typo-card p { color: var(--dim-dk); font-size: 16px; line-height: 1.6; }
+@media (max-width: 760px) { .typo-grid { grid-template-columns: 1fr; gap: 18px; } }
 
 /* ============ approach ============ */
 .approach h2 { font-size: clamp(32px, 4.8vw, 66px); max-width: 16ch; }
