@@ -290,16 +290,16 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .panel.area-light .p-media {
   left: auto; right: 0; width: 48%;
   -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, #000 52%, #000 90%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    linear-gradient(90deg, transparent 0%, #000 34%, #000 100%),
+    linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
   -webkit-mask-composite: source-in;
           mask-image:
-    linear-gradient(90deg, transparent 0%, #000 52%, #000 90%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    linear-gradient(90deg, transparent 0%, #000 34%, #000 100%),
+    linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
           mask-composite: intersect;
 }
 .panel.area-light .p-media image-slot { height: 100%; }
-.panel.area-light .p-media .p-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; filter: saturate(0.92) contrast(1.02); }
+.panel.area-light .p-media .p-img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; filter: saturate(0.92) contrast(1.02); }
 .panel.area-light .p-media::after { display: none; }
 .panel.area-light::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -313,6 +313,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .panel.area-light .p-desc { color: var(--dim-lt); }
 .panel.area-light .p-list li { color: var(--text-lt); background: rgba(15,31,70,0.04); border: 1px solid rgba(15,31,70,0.14); backdrop-filter: none; }
 @media (max-width: 860px) {
+  .panel.area-light .p-media .p-img { object-fit: cover; }
   .panel.area-light .p-media { left: 0; width: 100%;
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
             mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%); }
