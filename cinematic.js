@@ -383,6 +383,156 @@
     })();
   }
 
+  /* ---------- panel 01: o predio se monta conforme a pagina desce ----------
+     Mesma ideia do hero: os quadros sao extraidos UMA vez para um cache de
+     ImageBitmap e depois so desenhados, entao nao ha seek durante a rolagem
+     (cada quadro e independente -> sem engasgo). Duas diferencas:
+
+       1. a extracao e preguicosa. So comeca quando o painel esta a ~1,5 tela
+          de distancia, para o clipe nao disputar banda e CPU com o hero no
+          carregamento da pagina. O <video> nasce com preload="none".
+       2. o desenho e contain sobre canvas transparente, porque o clipe e 9:16
+          numa caixa mais larga. O que sobra nas laterais fica transparente e
+          mostra o marfim do painel, em vez de barra preta.
+     ---------------------------------------------------------------------- */
+  const bPanel  = document.querySelector(".area-build");
+  const bVideo  = document.querySelector(".build-video");
+  const bCanvas = document.querySelector(".build-canvas");
+  if (bPanel && bVideo && bCanvas) {
+    const B_FRAMES = 64;      // quadros no cache ao longo do clipe
+    const B_MAXW   = 540;     // teto da largura de captura (memoria)
+    const bctx = bCanvas.getContext("2d");
+    const bFrames = new Array(B_FRAMES);
+    let bReady = false, bDrawIdx = -1;
+    let bTarget = 0, bCur = 0, bLoopOn = false;
+
+    bVideo.muted = true;
+    bVideo.autoplay = false;
+    bVideo.removeAttribute("autoplay");
+    bVideo.loop = false;
+    bVideo.pause();
+    // o painel nunca toca sozinho: quem move o playhead e a rolagem
+    bVideo.addEventListener("play", () => { if (!bVideo.__allowPlay) bVideo.pause(); });
+
+    function bSize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = bCanvas.clientWidth, h = bCanvas.clientHeight;
+      if (!w || !h) return;
+      bCanvas.width = Math.round(w * dpr);
+      bCanvas.height = Math.round(h * dpr);
+    }
+
+    // quadro capturado mais proximo do pedido (as passadas grossas vem antes)
+    function bNearest(i) {
+      if (bFrames[i]) return bFrames[i];
+      for (let d = 1; d < B_FRAMES; d++) {
+        if (bFrames[i - d]) return bFrames[i - d];
+        if (bFrames[i + d]) return bFrames[i + d];
+      }
+      return null;
+    }
+
+    function bDraw(idx) {
+      if (!bctx) return;
+      idx = clamp(Math.round(idx), 0, B_FRAMES - 1);
+      const bmp = bFrames[idx] || bNearest(idx);
+      if (!bmp || !bmp.width) return;
+      if (idx === bDrawIdx) return;
+      const cw = bCanvas.width, ch = bCanvas.height;
+      // contain encostado a direita: afasta o predio do titulo e deixa a
+      // margem marfim do proprio clipe cair dentro do trecho que a mascara
+      // dissolve, entao a borda esquerda do video nunca vira uma emenda dura
+      const s = Math.min(cw / bmp.width, ch / bmp.height);
+      const dw = bmp.width * s, dh = bmp.height * s;
+      try {
+        bctx.clearRect(0, 0, cw, ch);                        // laterais transparentes
+        bctx.drawImage(bmp, cw - dw, (ch - dh) / 2, dw, dh);   // encostado a direita
+        bDrawIdx = idx;
+      } catch (e) { /* bitmap ruim: deixa o quadro anterior na tela */ }
+    }
+
+    // 0 quando o topo do painel encosta na base da tela, 1 quando ele ja subiu
+    // uma tela inteira. A montagem termina um pouco depois do painel centrado,
+    // para o predio ficar pronto e parado enquanto o texto e lido.
+    function bProgress() {
+      const r = bPanel.getBoundingClientRect();
+      const p2 = clamp((innerHeight - r.top) / (innerHeight + r.height), 0, 1);
+      return clamp((p2 - 0.12) / 0.46, 0, 1);
+    }
+
+    function bEnsureLoop() { if (!bLoopOn) { bLoopOn = true; requestAnimationFrame(bTick); } }
+    function bTick() {
+      const diff = bTarget - bCur;
+      const settled = Math.abs(diff) < 0.0004;
+      bCur = settled ? bTarget : bCur + diff * 0.16;
+      if (bReady) bDraw(bCur * (B_FRAMES - 1));
+      if (settled) { bLoopOn = false; return; }
+      requestAnimationFrame(bTick);
+    }
+    function bOnScroll() { bTarget = bProgress(); bEnsureLoop(); }
+
+    const bSeek = (t) => new Promise((res) => {
+      let done = false;
+      const ok = () => { if (done) return; done = true; bVideo.removeEventListener("seeked", ok); res(); };
+      bVideo.addEventListener("seeked", ok);
+      try { bVideo.currentTime = t; } catch (e) { ok(); }
+      setTimeout(ok, 500);   // nao trava se o evento seeked se perder
+    });
+
+    async function bExtract() {
+      bVideo.pause();
+      const dur = bVideo.duration || 10;
+      const vw = bVideo.videoWidth || 1080, vh = bVideo.videoHeight || 1920;
+      const w = Math.min(vw, B_MAXW), h = Math.round(w * vh / vw);
+      let first = false;
+
+      // passadas progressivas: uma varredura esparsa cobre o clipe inteiro em
+      // ~1 s (o scrub ja funciona), e cada passada seguinte dobra a densidade
+      for (const stride of [16, 8, 4, 2, 1]) {
+        for (let i = 0; i < B_FRAMES; i += stride) {
+          if (bFrames[i]) continue;
+          await bSeek((i / (B_FRAMES - 1)) * (dur - 0.05));
+          try {
+            bFrames[i] = await createImageBitmap(bVideo, {
+              resizeWidth: w, resizeHeight: h, resizeQuality: "medium",
+            }).catch(() => createImageBitmap(bVideo));
+          } catch (e) { /* pula o quadro */ }
+          if (!first && bFrames[0]) {
+            bSize(); bDrawIdx = -1; bDraw(0);
+            bCanvas.classList.add("on");
+            first = true;
+          }
+        }
+        if (!bReady) { bReady = true; bOnScroll(); }
+        bDrawIdx = -1; bDraw(bCur * (B_FRAMES - 1));
+        await new Promise((r) => setTimeout(r, 0));   // devolve a mao para a UI
+      }
+      bVideo.style.display = "none";   // libera o decoder: os quadros ja estao em cache
+    }
+
+    if (reduce) {
+      // sem animacao: mostra o predio pronto e para por ai
+      bVideo.preload = "auto";
+      const parado = () => { try { bVideo.currentTime = Math.max(0, (bVideo.duration || 10) - 0.05); } catch (e) {} };
+      if (bVideo.readyState >= 2) parado();
+      else { bVideo.addEventListener("loadeddata", parado, { once: true }); bVideo.load(); }
+    } else {
+      const bIO = new IntersectionObserver((ents) => {
+        if (!ents.some((e) => e.isIntersecting)) return;
+        bIO.disconnect();
+        bVideo.preload = "auto";
+        const go = () => bExtract();
+        if (bVideo.readyState >= 2) go();
+        else { bVideo.addEventListener("loadeddata", go, { once: true }); bVideo.load(); }
+      }, { rootMargin: "150% 0px" });
+      bIO.observe(bPanel);
+
+      window.addEventListener("scroll", bOnScroll, { passive: true });
+      window.addEventListener("resize", () => { bSize(); bDrawIdx = -1; bDraw(bCur * (B_FRAMES - 1)); bOnScroll(); });
+      bOnScroll();
+    }
+  }
+
   /* ---------- liquid-glass cursor ---------- */
   const lgCursor = document.querySelector(".lg-cursor");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
