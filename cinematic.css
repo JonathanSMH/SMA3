@@ -9,7 +9,8 @@
   --black:    #0F1F46;     /* navy from the SMA logo */
   --black-2:  #0A1733;     /* deeper navy */
   --navy:     #14224D;
-  --ivory:    #FFFFFF;      /* very white — premium */
+  --ivory:    #F1EEE6;      /* marfim: mesmo terreno dos videos e das fotos */
+  --ivory-rgb: 241, 238, 230;   /* o mesmo, em canais, para as lavagens dos paineis */
   --white:    #FFFFFF;
   --accent:   #0F1F46;     /* navy — accents on white sections */
   --accent-2: #6E8DC4;     /* luminous blue — accents on navy sections */
@@ -163,7 +164,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   transition: background .35s var(--ease), color .35s var(--ease), transform .35s var(--ease);
 }
 .btn:hover { background: #1A3267; }
-.btn.light-fill { background: #fff; color: var(--accent); }
+.btn.light-fill { background: var(--ivory); color: var(--accent); }
 .btn.light-fill:hover { background: #E8ECF5; }
 .btn.ghost { background: transparent; border: 1px solid var(--line-dk); color: var(--text-dk); }
 .light .btn.ghost { border-color: var(--line-lt); color: var(--text-lt); }
@@ -304,8 +305,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .panel.area-light::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(90deg, var(--ivory) 0%, rgba(255,255,255,0.85) 26%, rgba(255,255,255,0.35) 48%, rgba(255,255,255,0) 64%),
-    linear-gradient(180deg, rgba(255,255,255,0) 46%, rgba(255,255,255,0.35) 100%);
+    linear-gradient(90deg, var(--ivory) 0%, rgba(var(--ivory-rgb),0.85) 26%, rgba(var(--ivory-rgb),0.35) 48%, rgba(var(--ivory-rgb),0) 64%),
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0) 46%, rgba(var(--ivory-rgb),0.35) 100%);
 }
 .panel.area-light .p-body { z-index: 2; }
 .panel.area-light .p-num { color: var(--accent); }
@@ -320,19 +321,22 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
    porque aqui o assunto e um objeto centrado, e nao uma arte que sangra ate a borda. */
 .panel.area-build .p-media {
   -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, #000 36%, #000 100%),
+    linear-gradient(90deg, transparent 0%, #000 26%, #000 100%),
     linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
           mask-image:
-    linear-gradient(90deg, transparent 0%, #000 36%, #000 100%),
+    linear-gradient(90deg, transparent 0%, #000 26%, #000 100%),
     linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
 }
 .build-video, .build-canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  object-fit: contain; object-position: right center;
+  object-fit: contain; object-position: center;
   filter: saturate(0.92) contrast(1.02);
 }
 /* o canvas assume assim que o primeiro quadro e extraido; ate la o proprio
    <video> segura a imagem, entao uma falha na extracao degrada sem buraco */
+/* o titulo quebra antes da coluna do video: sem isso a ultima palavra cai
+   sobre o predio, que ocupa a largura inteira do quadro no fim do clipe */
+.panel.area-build h3 { max-width: 11ch; }
 .build-canvas { opacity: 0; transition: opacity .45s var(--ease); }
 .build-canvas.on { opacity: 1; }
 .build-media:has(.build-canvas.on) .build-video { opacity: 0; }
@@ -343,7 +347,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
             mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%); }
   .panel.area-light::before { background:
-    linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0.55) 70%, var(--ivory) 100%); }
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0.2) 0%, rgba(var(--ivory-rgb),0) 34%, rgba(var(--ivory-rgb),0.55) 70%, var(--ivory) 100%); }
 }
 
 /* ============ panel 03 — keys video (LIGHT theme, hero-style faded panel) ============ */
@@ -352,8 +356,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .keys-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(90deg, var(--ivory) 0%, rgba(255,255,255,0.85) 24%, rgba(255,255,255,0.35) 46%, rgba(255,255,255,0) 62%),
-    linear-gradient(180deg, rgba(255,255,255,0) 46%, rgba(255,255,255,0.35) 100%);
+    linear-gradient(90deg, var(--ivory) 0%, rgba(var(--ivory-rgb),0.85) 24%, rgba(var(--ivory-rgb),0.35) 46%, rgba(var(--ivory-rgb),0) 62%),
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0) 46%, rgba(var(--ivory-rgb),0.35) 100%);
 }
 .keys-panel .keys-media {
   left: auto; right: 0; width: 44%;
@@ -383,7 +387,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 
 @media (max-width: 860px) {
   .keys-panel::before { background:
-    linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0.55) 70%, var(--ivory) 100%); }
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0.2) 0%, rgba(var(--ivory-rgb),0) 34%, rgba(var(--ivory-rgb),0.55) 70%, var(--ivory) 100%); }
   .keys-panel .keys-media { left: 0; width: 100%;
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
             mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%); }

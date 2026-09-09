@@ -401,6 +401,8 @@
   if (bPanel && bVideo && bCanvas) {
     const B_FRAMES = 64;      // quadros no cache ao longo do clipe
     const B_MAXW   = 540;     // teto da largura de captura (memoria)
+    const B_FIT    = 0.88;    // quanto da caixa o quadro ocupa
+    const B_DROP   = 0.72;    // 0 = colado no topo, 1 = colado na base
     const bctx = bCanvas.getContext("2d");
     const bFrames = new Array(B_FRAMES);
     let bReady = false, bDrawIdx = -1;
@@ -439,14 +441,15 @@
       if (!bmp || !bmp.width) return;
       if (idx === bDrawIdx) return;
       const cw = bCanvas.width, ch = bCanvas.height;
-      // contain encostado a direita: afasta o predio do titulo e deixa a
-      // margem marfim do proprio clipe cair dentro do trecho que a mascara
-      // dissolve, entao a borda esquerda do video nunca vira uma emenda dura
-      const s = Math.min(cw / bmp.width, ch / bmp.height);
+      // O predio ocupa a largura inteira do quadro e encosta na direita nos
+      // ultimos segundos, quando a camera fecha. Desenhar em contain cheio
+      // jogaria ele contra a borda da tela, entao ele entra a 88% da caixa e
+      // puxado para baixo: sobra respiro em cima, embaixo e na direita.
+      const s = Math.min(cw / bmp.width, ch / bmp.height) * B_FIT;
       const dw = bmp.width * s, dh = bmp.height * s;
       try {
         bctx.clearRect(0, 0, cw, ch);                        // laterais transparentes
-        bctx.drawImage(bmp, cw - dw, (ch - dh) / 2, dw, dh);   // encostado a direita
+        bctx.drawImage(bmp, (cw - dw) / 2, (ch - dh) * B_DROP, dw, dh);
         bDrawIdx = idx;
       } catch (e) { /* bitmap ruim: deixa o quadro anterior na tela */ }
     }
