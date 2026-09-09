@@ -474,6 +474,73 @@
     }
     function bOnScroll() { bTarget = bProgress(); bEnsureLoop(); }
 
+
+    // ---- fundo do clipe -> branco puro ----------------------------------
+    // O clipe foi filmado sobre um fundo de estudio com gradiente suave
+    // (luma 226 a 240) e o predio e praticamente todo mais escuro que ele.
+    // Aqui cada quadro e dividido, canal a canal, pelo nivel do fundo
+    // estimado por linha: o fundo vira 255,255,255 e some quando a camada
+    // entra em multiply, e o que sobra na pagina e o predio e a sombra dele.
+    // Os poucos brilhos especulares acima do fundo estouram para branco e
+    // somem junto, que e o resultado desejado.
+    //
+    // O nivel do fundo de cada linha e o percentil 88 da luminancia: mesmo
+    // nas linhas em que o predio cobre metade da largura, esse percentil
+    // ainda cai dentro do fundo. Depois o plate e suavizado na vertical
+    // para a correcao nao criar faixas.
+    const bWork = document.createElement('canvas');
+    const bwctx = bWork.getContext('2d', { willReadFrequently: true });
+
+    function bFundoParaBranco(w, h) {
+      const img = bwctx.getImageData(0, 0, w, h);
+      const p = img.data;
+      const bgR = new Float32Array(h), bgG = new Float32Array(h), bgB = new Float32Array(h);
+      const hist = new Uint32Array(256);
+      const alvo = Math.floor(w * 0.88);
+
+      for (let y = 0; y < h; y++) {
+        hist.fill(0);
+        const linha = y * w * 4;
+        for (let x = 0; x < w; x++) {
+          const i = linha + x * 4;
+          hist[(p[i] * 54 + p[i + 1] * 183 + p[i + 2] * 19) >> 8]++;
+        }
+        let acc = 0, nivel = 255;
+        for (let l = 0; l < 256; l++) { acc += hist[l]; if (acc >= alvo) { nivel = l; break; } }
+
+        let sr = 0, sg = 0, sb = 0, n = 0;
+        for (let x = 0; x < w; x++) {
+          const i = linha + x * 4;
+          const l = (p[i] * 54 + p[i + 1] * 183 + p[i + 2] * 19) >> 8;
+          if (l >= nivel - 3 && l <= nivel + 3) { sr += p[i]; sg += p[i + 1]; sb += p[i + 2]; n++; }
+        }
+        bgR[y] = n ? sr / n : 255; bgG[y] = n ? sg / n : 255; bgB[y] = n ? sb / n : 255;
+      }
+
+      const suave = (a) => {
+        const o = new Float32Array(h), R = 8;
+        for (let y = 0; y < h; y++) {
+          let s = 0, n = 0;
+          for (let k = -R; k <= R; k++) { const yy = y + k; if (yy < 0 || yy >= h) continue; s += a[yy]; n++; }
+          o[y] = s / n;
+        }
+        return o;
+      };
+      const fR = suave(bgR), fG = suave(bgG), fB = suave(bgB);
+
+      for (let y = 0; y < h; y++) {
+        const kr = 255 / Math.max(1, fR[y]), kg = 255 / Math.max(1, fG[y]), kb = 255 / Math.max(1, fB[y]);
+        const linha = y * w * 4;
+        for (let x = 0; x < w; x++) {
+          const i = linha + x * 4;
+          const r = p[i] * kr, g = p[i + 1] * kg, b = p[i + 2] * kb;
+          p[i] = r > 255 ? 255 : r;
+          p[i + 1] = g > 255 ? 255 : g;
+          p[i + 2] = b > 255 ? 255 : b;
+        }
+      }
+      bwctx.putImageData(img, 0, 0);
+    }
     const bSeek = (t) => new Promise((res) => {
       let done = false;
       const ok = () => { if (done) return; done = true; bVideo.removeEventListener("seeked", ok); res(); };
@@ -496,9 +563,10 @@
           if (bFrames[i]) continue;
           await bSeek((i / (B_FRAMES - 1)) * (dur - 0.05));
           try {
-            bFrames[i] = await createImageBitmap(bVideo, {
-              resizeWidth: w, resizeHeight: h, resizeQuality: "medium",
-            }).catch(() => createImageBitmap(bVideo));
+            bWork.width = w; bWork.height = h;
+            bwctx.drawImage(bVideo, 0, 0, w, h);
+            bFundoParaBranco(w, h);
+            bFrames[i] = await createImageBitmap(bWork);
           } catch (e) { /* pula o quadro */ }
           if (!first && bFrames[0]) {
             bSize(); bDrawIdx = -1; bDraw(0);

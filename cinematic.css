@@ -319,19 +319,21 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
    transparente em volta: a moldura do painel vira o proprio marfim da secao.
    A mascara abre opacidade mais cedo que nos paineis de foto (22% contra 34%)
    porque aqui o assunto e um objeto centrado, e nao uma arte que sangra ate a borda. */
+/* Sem mascara: o fundo do clipe e corrigido para branco puro na extracao e
+   a camada entra em multiply, entao o retangulo do video nao existe. O que
+   aparece na pagina e o predio e a sombra dele, direto sobre o marfim. */
 .panel.area-build .p-media {
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, #000 26%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
-          mask-image:
-    linear-gradient(90deg, transparent 0%, #000 26%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  -webkit-mask-image: none;
+          mask-image: none;
+  mix-blend-mode: multiply;
 }
 .build-video, .build-canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;
   object-fit: contain; object-position: center;
-  filter: saturate(0.92) contrast(1.02);
 }
+/* o <video> so serve de fonte para a extracao: cru, ele traria o fundo do
+   estudio de volta como um retangulo */
+.build-video { opacity: 0; }
 /* o canvas assume assim que o primeiro quadro e extraido; ate la o proprio
    <video> segura a imagem, entao uma falha na extracao degrada sem buraco */
 /* o titulo quebra antes da coluna do video: sem isso a ultima palavra cai
@@ -339,7 +341,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .panel.area-build h3 { max-width: 11ch; }
 .build-canvas { opacity: 0; transition: opacity .45s var(--ease); }
 .build-canvas.on { opacity: 1; }
-.build-media:has(.build-canvas.on) .build-video { opacity: 0; }
 
 @media (max-width: 860px) {
   .panel.area-light .p-media .p-img { object-fit: cover; }
