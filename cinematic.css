@@ -319,13 +319,35 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
    transparente em volta: a moldura do painel vira o proprio marfim da secao.
    A mascara abre opacidade mais cedo que nos paineis de foto (22% contra 34%)
    porque aqui o assunto e um objeto centrado, e nao uma arte que sangra ate a borda. */
-/* Sem mascara: o fundo do clipe e corrigido para branco puro na extracao e
-   a camada entra em multiply, entao o retangulo do video nao existe. O que
-   aparece na pagina e o predio e a sombra dele, direto sobre o marfim. */
+/* Sem mascara e sem blend. O fundo do clipe e corrigido para branco puro e
+   depois multiplicado pelo marfim da pagina, tudo na extracao: o fundo sai
+   do quadro ja na cor exata da secao, entao o retangulo some sem custar um
+   mix-blend-mode, que obrigaria o navegador a recompor a camada inteira
+   contra o fundo a cada quadro e tirava a fluidez do scrub. */
 .panel.area-build .p-media {
   -webkit-mask-image: none;
           mask-image: none;
-  mix-blend-mode: multiply;
+}
+
+/* O painel fica preso enquanto o predio se monta: a secao e alta e o miolo
+   gruda no topo, entao a rolagem inteira dela vira a linha do tempo do
+   clipe e o proximo painel so entra com o edificio pronto. */
+.panel.area-build { height: 250svh; min-height: 0; display: block; overflow: visible; }
+.build-sticky {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.panel.area-build::before { display: none; }   /* a lavagem vai para o miolo preso */
+.build-sticky::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--ivory) 0%, rgba(var(--ivory-rgb),0.85) 26%, rgba(var(--ivory-rgb),0.35) 48%, rgba(var(--ivory-rgb),0) 64%),
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0) 46%, rgba(var(--ivory-rgb),0.35) 100%);
+}
+.build-sticky .p-body { width: 100%; }
+@media (max-width: 860px) {
+  .build-sticky::before { background:
+    linear-gradient(180deg, rgba(var(--ivory-rgb),0.2) 0%, rgba(var(--ivory-rgb),0) 34%, rgba(var(--ivory-rgb),0.55) 70%, var(--ivory) 100%); }
 }
 .build-video, .build-canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;

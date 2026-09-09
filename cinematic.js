@@ -235,7 +235,12 @@
   }, 2600);
 
   /* ---------- panels parallax ---------- */
-  const panels = [...document.querySelectorAll(".panel")].map((p) => ({ p, media: p.querySelector(".p-media") }));
+  // o painel 01 tem movimento proprio: fica preso enquanto o predio se monta,
+  // entao fica fora do parallax. Mexer no transform dele a cada scroll so
+  // custaria recomposicao sem ganho nenhum.
+  const panels = [...document.querySelectorAll(".panel")]
+    .filter((p) => !p.classList.contains("area-build"))
+    .map((p) => ({ p, media: p.querySelector(".p-media") }));
 
   let ticking = false;
   function frame() {
@@ -403,7 +408,11 @@
     const B_MAXW   = 540;     // teto da largura de captura (memoria)
     const B_FIT    = 0.88;    // quanto da caixa o quadro ocupa
     const B_DROP   = 0.72;    // 0 = colado no topo, 1 = colado na base
-    const bctx = bCanvas.getContext("2d");
+    const bctx = bCanvas.getContext("2d", { alpha: false });
+    // cor da propria secao: e ela que o fundo do clipe vira, e e ela que
+    // preenche o que sobra da caixa em volta do quadro
+    const bFundo = getComputedStyle(bPanel).backgroundColor || "#F1EEE6";
+    const bRGB = (bFundo.match(/\d+/g) || [241, 238, 230]).map(Number);
     const bFrames = new Array(B_FRAMES);
     let bReady = false, bDrawIdx = -1;
     let bTarget = 0, bCur = 0, bLoopOn = false;
@@ -448,19 +457,20 @@
       const s = Math.min(cw / bmp.width, ch / bmp.height) * B_FIT;
       const dw = bmp.width * s, dh = bmp.height * s;
       try {
-        bctx.clearRect(0, 0, cw, ch);                        // laterais transparentes
+        bctx.fillStyle = bFundo;
+        bctx.fillRect(0, 0, cw, ch);                         // laterais na cor da secao
         bctx.drawImage(bmp, (cw - dw) / 2, (ch - dh) * B_DROP, dw, dh);
         bDrawIdx = idx;
       } catch (e) { /* bitmap ruim: deixa o quadro anterior na tela */ }
     }
 
-    // 0 quando o topo do painel encosta na base da tela, 1 quando ele ja subiu
-    // uma tela inteira. A montagem termina um pouco depois do painel centrado,
-    // para o predio ficar pronto e parado enquanto o texto e lido.
+    // O painel fica preso: 0 quando o topo dele encosta no topo da tela e 1
+    // quando a secao inteira ja passou. Toda a rolagem presa e a linha do
+    // tempo do clipe, entao o proximo painel so entra com o predio pronto.
     function bProgress() {
       const r = bPanel.getBoundingClientRect();
-      const p2 = clamp((innerHeight - r.top) / (innerHeight + r.height), 0, 1);
-      return clamp((p2 - 0.12) / 0.46, 0, 1);
+      const total = bPanel.offsetHeight - innerHeight;
+      return clamp((-r.top) / (total || 1), 0, 1);
     }
 
     function bEnsureLoop() { if (!bLoopOn) { bLoopOn = true; requestAnimationFrame(bTick); } }
@@ -528,15 +538,19 @@
       };
       const fR = suave(bgR), fG = suave(bgG), fB = suave(bgB);
 
+      // branco puro e, na mesma passada, multiplicado pela cor da secao: o
+      // fundo sai do quadro exatamente na cor da pagina, que e o que faz o
+      // retangulo sumir sem precisar de blend na hora de compor
+      const mr = bRGB[0] / 255, mg = bRGB[1] / 255, mb = bRGB[2] / 255;
       for (let y = 0; y < h; y++) {
         const kr = 255 / Math.max(1, fR[y]), kg = 255 / Math.max(1, fG[y]), kb = 255 / Math.max(1, fB[y]);
         const linha = y * w * 4;
         for (let x = 0; x < w; x++) {
           const i = linha + x * 4;
           const r = p[i] * kr, g = p[i + 1] * kg, b = p[i + 2] * kb;
-          p[i] = r > 255 ? 255 : r;
-          p[i + 1] = g > 255 ? 255 : g;
-          p[i + 2] = b > 255 ? 255 : b;
+          p[i]     = (r > 255 ? 255 : r) * mr;
+          p[i + 1] = (g > 255 ? 255 : g) * mg;
+          p[i + 2] = (b > 255 ? 255 : b) * mb;
         }
       }
       bwctx.putImageData(img, 0, 0);
