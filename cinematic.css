@@ -288,19 +288,15 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 
 /* ---- light-theme panel (e.g. 01 Societário): white bg, image faded on the right ---- */
 .panel.area-light { background: var(--ivory); }
-.panel.area-light .p-media {
-  left: auto; right: 0; width: 48%;
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, #000 34%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
-  -webkit-mask-composite: source-in;
-          mask-image:
-    linear-gradient(90deg, transparent 0%, #000 34%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
-          mask-composite: intersect;
-}
+/* Sem mascara. O fundo de estudio da foto ja foi corrigido e multiplicado
+   pelo marfim da secao no proprio arquivo, e as bordas dela ja se
+   dissolvem nessa cor, entao nao ha retangulo para esconder. A mascara
+   antiga comia 34% da esquerda e agora so apagaria a peca de vidro. */
+.panel.area-light .p-media { left: auto; right: 0; width: 48%; }
 .panel.area-light .p-media image-slot { height: 100%; }
-.panel.area-light .p-media .p-img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; filter: saturate(0.92) contrast(1.02); }
+/* sem filter: contrast(1.02) empurrava o marfim assado na imagem de
+   241,238,230 para 243,240,232 e reabria a beirada do retangulo */
+.panel.area-light .p-media .p-img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
 .panel.area-light .p-media::after { display: none; }
 .panel.area-light::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
