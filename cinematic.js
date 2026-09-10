@@ -406,8 +406,15 @@
   if (bPanel && bVideo && bCanvas) {
     const B_FRAMES = 64;      // quadros no cache ao longo do clipe
     const B_MAXW   = 540;     // teto da largura de captura (memoria)
-    const B_FIT    = 0.88;    // quanto da caixa o quadro ocupa
-    const B_DROP   = 0.72;    // 0 = colado no topo, 1 = colado na base
+    // Medidas do proprio clipe, tiradas do quadro final: o pe do predio esta
+    // a 90,8% da altura do quadro e o teto a 14,4%, ou seja quase um quarto do
+    // quadro e margem vazia. Enquadrar pelo quadro desperdicava esse quarto e
+    // deixava o edificio pequeno; aqui o enquadramento e feito pelo predio.
+    const B_PES    = 0.908;   // onde o pe do predio esta dentro do quadro
+    const B_TOPO   = 0.144;   // onde o teto do predio pronto esta dentro do quadro
+    const B_ALTURA = 0.86;    // quanto da altura da caixa o predio pronto ocupa
+    const B_BASE   = 0.92;    // onde o pe do predio pousa na caixa
+    const B_LADO   = 0.07;    // faixa de cada lado dissolvida no marfim
     const bctx = bCanvas.getContext("2d", { alpha: false });
     // cor da propria secao: e ela que o fundo do clipe vira, e e ela que
     // preenche o que sobra da caixa em volta do quadro
@@ -450,16 +457,21 @@
       if (!bmp || !bmp.width) return;
       if (idx === bDrawIdx) return;
       const cw = bCanvas.width, ch = bCanvas.height;
-      // O predio ocupa a largura inteira do quadro e encosta na direita nos
-      // ultimos segundos, quando a camera fecha. Desenhar em contain cheio
-      // jogaria ele contra a borda da tela, entao ele entra a 88% da caixa e
-      // puxado para baixo: sobra respiro em cima, embaixo e na direita.
-      const s = Math.min(cw / bmp.width, ch / bmp.height) * B_FIT;
-      const dw = bmp.width * s, dh = bmp.height * s;
+      // A escala sai do predio, nao do quadro: o clipe e esticado ate que o
+      // edificio pronto ocupe B_ALTURA da caixa, e depois posicionado pelo pe.
+      // As margens vazias do quadro sobram para fora da caixa, em cima e
+      // embaixo, entao nenhuma borda horizontal do clipe aparece na pagina e
+      // as pecas que chegam voando entram de fora da tela.
+      let dh = ch * (B_ALTURA / (B_PES - B_TOPO));
+      let dw = dh * bmp.width / bmp.height;
+      // no celular a caixa e mais estreita que alta: sem este teto o quadro
+      // passaria da largura da tela e as laterais dissolvidas ficariam de
+      // fora, trazendo de volta o corte seco que elas existem para evitar
+      if (dw > cw) { dw = cw; dh = dw * bmp.height / bmp.width; }
       try {
         bctx.fillStyle = bFundo;
         bctx.fillRect(0, 0, cw, ch);                         // laterais na cor da secao
-        bctx.drawImage(bmp, (cw - dw) / 2, (ch - dh) * B_DROP, dw, dh);
+        bctx.drawImage(bmp, (cw - dw) / 2, ch * B_BASE - dh * B_PES, dw, dh);
         bDrawIdx = idx;
       } catch (e) { /* bitmap ruim: deixa o quadro anterior na tela */ }
     }
@@ -551,6 +563,23 @@
           p[i]     = (r > 255 ? 255 : r) * mr;
           p[i + 1] = (g > 255 ? 255 : g) * mg;
           p[i + 2] = (b > 255 ? 255 : b) * mb;
+        }
+      }
+      // As laterais sao um corte seco: o predio sai pelas duas bordas do clipe
+      // original (medido: a coluna 0 e a 1079 tem centenas de linhas de predio
+      // solido no fim da montagem). Como o quadro e mais estreito que a tela,
+      // esse corte apareceria como duas linhas verticais no meio do marfim.
+      // Cada lado entao se dissolve na cor da secao numa faixa estreita, e o
+      // que a pagina mostra e um edificio que continua para fora do enquadre.
+      const faixa = Math.max(1, Math.round(w * B_LADO));
+      for (let x = 0; x < faixa; x++) {
+        const u = x / faixa, a = u * u * (3 - 2 * u);
+        for (let y = 0; y < h; y++) {
+          const e = (y * w + x) * 4, d = (y * w + (w - 1 - x)) * 4;
+          for (let k = 0; k < 3; k++) {
+            p[e + k] = bRGB[k] + (p[e + k] - bRGB[k]) * a;
+            p[d + k] = bRGB[k] + (p[d + k] - bRGB[k]) * a;
+          }
         }
       }
       bwctx.putImageData(img, 0, 0);
