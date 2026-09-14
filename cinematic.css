@@ -523,6 +523,14 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .mask.in > span { opacity: 1; transform: none; }
 .mask.d1 > span { transition-delay: .14s; } .mask.d2 > span { transition-delay: .28s; } .mask.d3 > span { transition-delay: .42s; }
 
+/* A abertura do hero nao espera o script: entra por animacao CSS, que
+   comeca na primeira pintura. O JS ainda marca .in, mas ja nao e ele que
+   revela; num celular lento o texto aparecia so 1,5 s depois do poster. */
+@keyframes entrada { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+.hs-intro .mask > span, .hs-intro .fade { animation: entrada .9s var(--ease-io) both; }
+.hs-intro .mask.d1 > span { animation-delay: .12s; } .hs-intro .mask.d2 > span { animation-delay: .24s; }
+.hs-intro .fade.d3 { animation-delay: .34s; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition-duration: .01ms !important; }
   .fade, .mask > span { opacity: 1 !important; transform: none !important; }
@@ -578,4 +586,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   .mask > span { transform: translateY(14px); transition-duration: .5s, .55s; }
   .mask.d1 > span { transition-delay: .06s; } .mask.d2 > span { transition-delay: .12s; } .mask.d3 > span { transition-delay: .18s; }
   .hs-stage { transition-duration: .45s, .45s; }
+  .hs-intro .mask > span, .hs-intro .fade { animation-duration: .5s; }
+  .hs-intro .mask.d1 > span { animation-delay: .06s; } .hs-intro .mask.d2 > span { animation-delay: .12s; }
+  .hs-intro .fade.d3 { animation-delay: .18s; }
 }
