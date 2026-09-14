@@ -147,6 +147,12 @@
     })();
   }
   window.addEventListener("resize", () => { hsSizeCanvas(); hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1)); });
+  // no celular a caixa do predio e o que sobra depois do texto: quando a
+  // fonte chega e o texto muda de altura, a caixa muda junto e o canvas
+  // precisa acompanhar
+  if (hsCanvas && window.ResizeObserver) {
+    new ResizeObserver(() => { hsSizeCanvas(); hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1)); }).observe(hsCanvas);
+  }
 
   /* ---------- nav: fundo solido, barra de progresso, menu do celular ---------- */
   const nav = document.querySelector(".nav");

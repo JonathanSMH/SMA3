@@ -273,21 +273,35 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 
 /* responsive: stack the panel behind the text on narrow screens */
 @media (max-width: 860px) {
-  /* no celular o predio ocupa a metade de baixo da tela e o texto a de cima:
-     nada se sobrepoe e a rolagem presa e mais curta (o pin de 460vh do
-     desktop viraria uma parede de polegar) */
+  /* No celular o hero vira uma coluna: o texto entra no fluxo e ocupa o que
+     precisa, e o predio recebe o que sobra da tela. Assim nada se sobrepoe
+     em tela nenhuma, alta ou baixa. A rolagem presa e mais curta (o pin de
+     460vh do desktop viraria uma parede de polegar). */
   .hero-scrub { height: 300svh !important; }
-  .hs-media { width: 100%; top: 52%;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
-            mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%); }
-  .hs-content { padding-top: 78px; }
+  .hs-sticky { display: flex; flex-direction: column; }
+  .hs-content { order: 0; position: relative; inset: auto; flex: 0 0 auto; padding-top: 74px; padding-bottom: 12px; }
+  .hs-media { order: 1; position: relative; inset: auto; flex: 1 1 auto; min-height: 34%; width: 100%;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%); }
+  .hs-intro { transform: none; }
   .hs-intro, .hs-cap { max-width: none; }
-  .hs-intro .kicker { margin-bottom: 14px; }
-  .hs-intro h1 { font-size: clamp(32px, 9.2vw, 42px); }
-  .hs-intro .sub { margin-top: 14px; font-size: 15px; max-width: none; }
-  .hs-intro .acts { margin-top: 18px; gap: 16px; }
-  .hs-cap { top: 84px; transform: translateY(16px); font-size: clamp(28px, 8.4vw, 40px); padding-right: var(--gutter); }
+  .hs-intro .kicker { margin-bottom: 12px; font-size: 11px; }
+  .hs-intro h1 { font-size: clamp(30px, 8.8vw, 40px); }
+  .hs-intro .sub { margin-top: 12px; font-size: 15px; line-height: 1.45; max-width: none; }
+  /* botao e link lado a lado, compactos; se nao couberem, o link desce */
+  .hs-intro .acts { margin-top: 18px; gap: 10px 16px; flex-wrap: wrap; }
+  .hs-intro .acts .btn { padding: 12px 18px; font-size: 14px; }
+  .hs-intro .acts .link-arrow { font-size: 14px; }
+  .hs-cap { top: 74px; transform: translateY(16px); font-size: clamp(26px, 8vw, 38px); padding-right: var(--gutter); }
   .hs-cap.on { transform: none; }
+}
+/* telas baixas (celulares antigos, paisagem): texto ainda mais compacto */
+@media (max-width: 860px) and (max-height: 700px) {
+  .hs-content { padding-top: 66px; }
+  .hs-intro .kicker { margin-bottom: 8px; }
+  .hs-intro h1 { font-size: clamp(28px, 8vw, 34px); }
+  .hs-intro .sub { margin-top: 10px; font-size: 14px; }
+  .hs-intro .acts { margin-top: 14px; }
 }
 
 .hs-hint {
@@ -551,11 +565,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   }
   .keys-panel::before, .panel.area-light:not(.area-build)::before { display: none; }
   .panel.area-light .p-media .p-img { object-fit: cover; object-position: center 40%; }
-
-  /* hero: botao de largura inteira e o link centrado embaixo dele */
-  .hs-intro .acts { flex-direction: column; align-items: stretch; gap: 12px; margin-top: 22px; }
-  .hs-intro .acts .btn { justify-content: center; padding: 14px 24px; }
-  .hs-intro .acts .link-arrow { justify-content: center; }
 
   /* textos aparecem mais rapido: entrada curta, quase sem escalonamento */
   .fade { transform: translateY(14px); transition-duration: .5s, .5s; }
