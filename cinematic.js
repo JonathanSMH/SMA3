@@ -270,91 +270,90 @@
   });
 
   /* ---------- painel 03: chaves ----------
-     O <video> nasce com preload="none" e um poster WebP: e o poster que
-     aparece primeiro. Com mouse, o clipe (280 KB, sem audio) so e baixado
-     quando o painel se aproxima e o playhead segue o mouse. No toque nao
-     ha scrub: o clipe roda em loop enquanto o painel esta na tela e para
-     quando sai, para nao gastar bateria com uma coisa que ninguem ve. */
-  const keysVideo = document.querySelector(".keys-video");
+     Mesma sequencia de quadros do hero (assets/chaves, 48 quadros, 300 KB
+     no total). Com mouse, o playhead segue a posicao horizontal do
+     ponteiro sobre o painel. No toque, segue a rolagem: as chaves giram
+     conforme o painel atravessa a tela. Nada depende de autoplay, entao
+     funciona tambem com Modo de Baixo Consumo e Data Saver. Os quadros
+     so sao pedidos quando o painel esta a ~1,5 tela de distancia. */
   const keysCanvas = document.querySelector(".keys-canvas");
   const keysPanel = document.querySelector(".keys-panel");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  if (keysVideo && keysPanel && !finePointer && !reduce) {
-    keysVideo.muted = true;
-    keysVideo.loop = true;
-    keysVideo.playsInline = true;
-    let pedido = false;
-    const tIO = new IntersectionObserver((ents) => {
-      const dentro = ents.some((e) => e.isIntersecting);
-      if (dentro) {
-        if (!pedido) { pedido = true; keysVideo.preload = "auto"; keysVideo.load(); }
-        const p = keysVideo.play(); if (p && p.catch) p.catch(() => {});
-      } else if (!keysVideo.paused) {
-        keysVideo.pause();
-      }
-    }, { rootMargin: "40% 0px" });
-    tIO.observe(keysPanel);
-  }
-  if (keysVideo && keysPanel && keysCanvas && finePointer && !reduce) {
-    keysVideo.muted = true;
-    keysVideo.loop = false;
-    const kctx = keysCanvas.getContext("2d");
-    let dur = 0, ready = false, targetT = 0, curT = 0, seeking = false, pendingT = null;
+  if (keysCanvas && keysPanel) {
+    const K_TOTAL = 48;
+    const kctx = keysCanvas.getContext("2d", { alpha: false });
+    let kReady = false, kDrawIdx = -1, kTarget = 0, kCur = 0, kLoopOn = false;
 
-    function sizeCanvas() {
+    function kSize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = keysCanvas.clientWidth, h = keysCanvas.clientHeight;
       if (!w || !h) return;
       keysCanvas.width = Math.round(w * dpr);
       keysCanvas.height = Math.round(h * dpr);
     }
-    function drawCover() {
-      if (!keysVideo.videoWidth) return;
-      const cw = keysCanvas.width, ch = keysCanvas.height;
-      const sr = keysVideo.videoWidth / keysVideo.videoHeight, dr = cw / ch;
-      let w, h; if (sr > dr) { h = ch; w = ch * sr; } else { w = cw; h = cw / sr; }
-      try { kctx.drawImage(keysVideo, (cw - w) / 2, (ch - h) / 2, w, h); } catch (e) {}
-    }
-    function onMeta() { dur = keysVideo.duration || 0; ready = true; sizeCanvas(); }
-    keysVideo.addEventListener("loadedmetadata", onMeta, { once: true });
-    keysVideo.addEventListener("seeked", () => {
-      seeking = false;
-      drawCover();
-      keysCanvas.classList.add("on");
-      if (pendingT != null) { const t = pendingT; pendingT = null; doSeek(t); }
+    const kSeq = sequencia("assets/chaves", K_TOTAL, (i) => {
+      if (kReady && Math.abs(kCur * (K_TOTAL - 1) - i) < 1) { kDrawIdx = -1; kDraw(kCur * (K_TOTAL - 1)); }
     });
-    window.addEventListener("resize", () => { sizeCanvas(); drawCover(); });
-
-    function doSeek(t) {
-      if (!ready) return;
-      if (seeking) { pendingT = t; return; }
-      seeking = true;
-      try { keysVideo.currentTime = t; } catch (e) { seeking = false; }
+    function kDraw(pos) {
+      pos = clamp(pos, 0, K_TOTAL - 1);
+      const i0 = Math.floor(pos), i1 = Math.min(K_TOTAL - 1, i0 + 1), t = pos - i0;
+      const a = kSeq.quadros[i0], b2 = kSeq.quadros[i1];
+      const mescla = a && b2 && i0 !== i1 && t > 0.04 && t < 0.96;
+      const chave = mescla ? pos : Math.round(pos);
+      const img = mescla ? a : (kSeq.quadros[Math.round(pos)] || kSeq.proximo(Math.round(pos)));
+      if (!img) return;
+      if (chave === kDrawIdx) return;
+      const cw = keysCanvas.width, ch = keysCanvas.height;
+      const sr = img.naturalWidth / img.naturalHeight, dr = cw / ch;
+      let dw, dh; if (sr > dr) { dh = ch; dw = ch * sr; } else { dw = cw; dh = cw / sr; }   // cover
+      const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+      try {
+        kctx.globalAlpha = 1;
+        kctx.drawImage(img, dx, dy, dw, dh);
+        if (mescla) { kctx.globalAlpha = t; kctx.drawImage(b2, dx, dy, dw, dh); kctx.globalAlpha = 1; }
+        kDrawIdx = chave;
+      } catch (e) {}
     }
-    // o playhead persegue o mouse e o laco para quando alcanca: sem rAF
-    // rodando com o mouse parado
-    let loopOn = false;
-    function loop() {
-      curT += (targetT - curT) * 0.16;
-      if (Math.abs(curT - keysVideo.currentTime) > 0.02) doSeek(curT);
-      if (Math.abs(targetT - curT) < 0.005) { loopOn = false; return; }
-      requestAnimationFrame(loop);
+    function kEnsureLoop() { if (!kLoopOn) { kLoopOn = true; requestAnimationFrame(kTick); } }
+    function kTick() {
+      const diff = kTarget - kCur;
+      const settled = Math.abs(diff) < 0.0004;
+      kCur = settled ? kTarget : kCur + diff * 0.16;
+      if (kReady) kDraw(kCur * (K_TOTAL - 1));
+      if (settled) { kLoopOn = false; return; }
+      requestAnimationFrame(kTick);
     }
-    keysPanel.addEventListener("pointermove", (e) => {
-      if (!ready) return;
-      keysPanel.classList.add("scrubbing");
-      const r = keysPanel.getBoundingClientRect();
-      let n = (e.clientX - r.left) / r.width;
-      n = n < 0 ? 0 : n > 1 ? 1 : n;
-      targetT = n * (dur - 0.04);
-      if (!loopOn) { loopOn = true; requestAnimationFrame(loop); }
-    }, { passive: true });
 
+    if (finePointer && !reduce) {
+      // mouse: a posicao horizontal sobre o painel e o playhead
+      keysPanel.addEventListener("pointermove", (e) => {
+        const r = keysPanel.getBoundingClientRect();
+        kTarget = clamp((e.clientX - r.left) / r.width, 0, 1);
+        kEnsureLoop();
+      }, { passive: true });
+    } else if (!reduce) {
+      // toque: o playhead e a passagem do painel pela tela
+      const kOnScroll = () => {
+        const r = keysPanel.getBoundingClientRect();
+        kTarget = clamp((innerHeight - r.top) / (innerHeight + r.height), 0, 1);
+        kEnsureLoop();
+      };
+      window.addEventListener("scroll", kOnScroll, { passive: true });
+      kOnScroll();
+    }
+    window.addEventListener("resize", () => { kSize(); kDrawIdx = -1; kDraw(kCur * (K_TOTAL - 1)); });
+
+    async function kCarregar() {
+      await kSeq.passadas([16], 4);
+      if (!kSeq.proximo(0)) return;   // nada chegou: fica o poster
+      kReady = true;
+      kSize(); kDrawIdx = -1; kDraw(kCur * (K_TOTAL - 1)); keysCanvas.classList.add("on");
+      if (!reduce) await kSeq.passadas(economia ? [8, 4, 2] : [8, 4, 2, 1], estreito ? 4 : 8);
+    }
     const kIO = new IntersectionObserver((ents) => {
       if (!ents.some((e) => e.isIntersecting)) return;
       kIO.disconnect();
-      keysVideo.preload = "auto";
-      keysVideo.load();
+      kCarregar();
     }, { rootMargin: "150% 0px" });
     kIO.observe(keysPanel);
   }

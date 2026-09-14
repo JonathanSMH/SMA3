@@ -433,10 +433,11 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
           mask-composite: intersect;
 }
 .keys-panel .keys-media::after { display: none; }   /* fade mask handles separation */
-.keys-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-/* o canvas cobre o video para desenhar o scrub do mouse */
-.keys-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.keys-canvas.on + .keys-video, .keys-media:has(.keys-canvas.on) .keys-video { opacity: 0; }
+/* o poster (quadro 01) chega com a pagina; o canvas assume por cima assim
+   que os quadros comecam a chegar */
+.keys-poster, .keys-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
+.keys-canvas { opacity: 0; transition: opacity .4s var(--ease); }
+.keys-canvas.on { opacity: 1; }
 /* the video area invites horizontal scrubbing */
 .keys-media { cursor: none; }
 
@@ -550,10 +551,15 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   .contact-grid h2 { font-size: clamp(30px, 8.4vw, 40px); }
   .footer .f-logo { font-size: 40px; }
 
+  /* paineis 02, 03 e 04: o painel cresce alem da tela se o texto precisar,
+     em vez de cortar o que nao coube (overflow hidden) */
+  .panel.area-solid, .keys-panel, .panel.area-light:not(.area-build) { height: auto; min-height: 100svh; }
+  .panel.area-solid .p-body { padding-top: 90px; }
   /* paineis 03 e 04: a imagem ocupa a metade de cima da tela, dissolvida
-     nas quatro bordas, e o texto fica embaixo sem nada por tras */
+     nas quatro bordas, e o texto comeca depois dela, nunca por cima */
+  .keys-panel .p-body, .panel.area-light:not(.area-build) .p-body { padding-top: 50svh; }
   .keys-panel .keys-media, .panel.area-light:not(.area-build) .p-media {
-    top: 8%; bottom: auto; left: 0; width: 100%; height: 50%;
+    top: 4svh; bottom: auto; left: 0; width: 100%; height: 46svh;
     -webkit-mask-image:
       linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
       linear-gradient(180deg, transparent 0%, #000 14%, #000 82%, transparent 100%);
