@@ -466,6 +466,25 @@
     }
   }
 
+  /* ---------- fundo do depoimento: veus (Radiant) ----------
+     O iframe do shader so ganha src quando a secao esta a meia tela de
+     distancia e perde o src quando sai, para nao rodar WebGL fora da
+     tela. Com reduced-motion o shader ja nasce parado (u_time = 0). */
+  const veus = document.querySelector(".quote .veus");
+  if (veus) {
+    const vIO = new IntersectionObserver((ents) => {
+      const dentro = ents.some((e) => e.isIntersecting);
+      if (dentro && !veus.src) {
+        veus.src = veus.dataset.src;
+        veus.addEventListener("load", () => veus.classList.add("on"), { once: true });
+      } else if (!dentro && veus.src) {
+        veus.classList.remove("on");
+        veus.removeAttribute("src");
+      }
+    }, { rootMargin: "50% 0px" });
+    vIO.observe(veus);
+  }
+
   /* ---------- cursor de vidro ---------- */
   const lgCursor = document.querySelector(".lg-cursor");
   if (lgCursor && finePointer && !reduce) {
