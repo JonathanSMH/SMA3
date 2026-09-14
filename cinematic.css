@@ -153,7 +153,43 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .nav-links a:hover { color: var(--text-dk); }
 .nav .nav-cta { font-size: 15px; color: var(--accent-2); }
 .nav .nav-cta:hover { text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 820px) { .nav-links { display: none; } }
+/* o hero e marfim: antes de a barra ficar solida, a nav e navy para nao
+   sumir no fundo claro */
+.nav:not(.solid) .logo, .nav:not(.solid) .nav-links a:hover, .nav:not(.solid) .nav-menu span { color: var(--text-lt); }
+.nav:not(.solid) .nav-links a { color: var(--dim-lt); }
+.nav:not(.solid) .nav-cta { color: var(--accent); }
+.menu-aberto .nav .logo, .menu-aberto .nav .nav-menu span { color: var(--text-dk); }
+/* ---- menu do celular: botao de duas linhas e cortina navy ---- */
+.nav-menu { display: none; position: relative; width: 44px; height: 44px; margin-right: -10px; background: none; border: 0; cursor: pointer; }
+.nav-menu span { position: absolute; left: 11px; width: 22px; height: 1.5px; background: currentColor; color: var(--text-dk); transition: transform .4s var(--ease), top .4s var(--ease); }
+.nav-menu span:first-child { top: 17px; } .nav-menu span:last-child { top: 25px; }
+.menu-aberto .nav-menu span:first-child { top: 21px; transform: rotate(45deg); }
+.menu-aberto .nav-menu span:last-child { top: 21px; transform: rotate(-45deg); }
+.menu {
+  position: fixed; inset: 0; z-index: 790; display: none; flex-direction: column; justify-content: center; gap: 6px;
+  padding: 80px var(--gutter) 40px; background: var(--black-2); color: var(--text-dk);
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+.menu a { font-size: clamp(30px, 8vw, 40px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.25; color: var(--text-dk);
+  opacity: 0; transform: translateY(14px); transition: opacity .5s var(--ease-io), transform .5s var(--ease-io); }
+.menu a:nth-child(2) { transition-delay: .05s; } .menu a:nth-child(3) { transition-delay: .1s; } .menu a:nth-child(4) { transition-delay: .15s; } .menu a:nth-child(5) { transition-delay: .2s; }
+.menu a.btn { font-size: 16px; font-weight: 500; letter-spacing: 0; margin-top: 28px; align-self: flex-start; }
+.menu-aberto { overflow: hidden; }
+.menu-aberto .menu { display: flex; opacity: 1; }
+.menu-aberto .menu a { opacity: 1; transform: none; }
+.menu-aberto .nav { background: var(--black-2); }
+.menu-aberto .nav .nav-cta { opacity: 0; pointer-events: none; }
+@media (max-width: 820px) {
+  .nav-links { display: none; }
+  .nav-menu { display: block; }
+  .nav .nav-cta { margin-left: auto; margin-right: 14px; }
+}
+
+/* ============ secao O Escritorio ============ */
+.sobre-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(36px, 6vw, 100px); align-items: start; margin-top: 34px; }
+.sobre-grid h2 { font-size: clamp(30px, 3.8vw, 56px); max-width: 18ch; }
+.sobre-grid p { color: var(--dim-lt); font-size: 18px; line-height: 1.65; max-width: 46ch; }
+.sobre-grid p + p { margin-top: 20px; }
 
 /* ============ buttons / links ============ */
 .btn {
@@ -196,27 +232,16 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
     linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
           mask-composite: intersect;
 }
-.hs-video {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center; display: block;
-  filter: brightness(1.08) contrast(1.05) saturate(0.97);
-  pointer-events: none;
-  opacity: 0;            /* decode source only — never shown; canvas is the display */
-}
-.hs-video::-webkit-media-controls,
-.hs-video::-webkit-media-controls-enclosure { display: none !important; }
-/* canvas frame buffer — sits above the video once frames are cached */
-.hs-canvas {
+/* o primeiro quadro chega como <img> junto com o HTML: e a primeira pintura
+   do hero, antes de qualquer script. O canvas assume por cima assim que o
+   mesmo quadro esta decodificado, e o brilho/contraste do clipe ja vem
+   assado nos quadros, sem filter sobre uma camada de tela inteira. */
+.hs-poster, .hs-canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  opacity: 0; transition: opacity .5s var(--ease);
-  filter: brightness(1.08) contrast(1.05) saturate(0.97);
+  object-fit: cover; object-position: center;
 }
+.hs-canvas { opacity: 0; transition: opacity .5s var(--ease); }
 .hs-canvas.ready { opacity: 1; }
-/* thin loading bar while frames are extracted */
-.hs-loader { position: absolute; right: 18%; bottom: 9%; z-index: 5; opacity: 1; transition: opacity .5s var(--ease); }
-.hs-loader.done { opacity: 0; pointer-events: none; }
-.hs-loader-bar { width: 140px; height: 2px; background: rgba(15,31,70,0.18); overflow: hidden; border-radius: 2px; }
-.hs-loader-bar i { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .2s linear; }
 
 .hs-content { position: absolute; inset: 0; display: flex; align-items: flex-start; padding-top: clamp(90px, 14vh, 160px); z-index: 3; }
 .hs-content .wrap { position: relative; width: 100%; }
@@ -248,11 +273,21 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 
 /* responsive: stack the panel behind the text on narrow screens */
 @media (max-width: 860px) {
-  .hs-media { width: 100%;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 100%);
-            mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 100%); }
+  /* no celular o predio ocupa a metade de baixo da tela e o texto a de cima:
+     nada se sobrepoe e a rolagem presa e mais curta (o pin de 460vh do
+     desktop viraria uma parede de polegar) */
+  .hero-scrub { height: 300svh !important; }
+  .hs-media { width: 100%; top: 52%;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%); }
+  .hs-content { padding-top: 78px; }
   .hs-intro, .hs-cap { max-width: none; }
-  .hs-loader { right: 50%; transform: translateX(50%); }
+  .hs-intro .kicker { margin-bottom: 14px; }
+  .hs-intro h1 { font-size: clamp(32px, 9.2vw, 42px); }
+  .hs-intro .sub { margin-top: 14px; font-size: 15px; max-width: none; }
+  .hs-intro .acts { margin-top: 18px; gap: 16px; }
+  .hs-cap { top: 84px; transform: translateY(16px); font-size: clamp(28px, 8.4vw, 40px); padding-right: var(--gutter); }
+  .hs-cap.on { transform: none; }
 }
 
 .hs-hint {
@@ -271,7 +306,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 
 .panel { position: relative; height: 100svh; min-height: 680px; overflow: hidden; display: flex; align-items: flex-end; }
 .panel .p-media { position: absolute; inset: 0; z-index: 0; will-change: transform; }
-.panel .p-media image-slot { width: 100%; height: 120%; }
 .panel .p-media::after { content: ""; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(10,23,51,0.34) 0%, rgba(10,23,51,0) 26%, rgba(10,23,51,0.20) 52%, rgba(10,23,51,0.94) 100%); }
 .panel .p-body { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(56px, 9vh, 110px); }
@@ -293,7 +327,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
    dissolvem nessa cor, entao nao ha retangulo para esconder. A mascara
    antiga comia 34% da esquerda e agora so apagaria a peca de vidro. */
 .panel.area-light .p-media { left: auto; right: 0; width: 48%; }
-.panel.area-light .p-media image-slot { height: 100%; }
 /* sem filter: contrast(1.02) empurrava o marfim assado na imagem de
    241,238,230 para 243,240,232 e reabria a beirada do retangulo */
 .panel.area-light .p-media .p-img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
@@ -345,15 +378,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   .build-sticky::before { background:
     linear-gradient(180deg, rgba(var(--ivory-rgb),0.2) 0%, rgba(var(--ivory-rgb),0) 34%, rgba(var(--ivory-rgb),0.55) 70%, var(--ivory) 100%); }
 }
-.build-video, .build-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  object-fit: contain; object-position: center;
-}
-/* o <video> so serve de fonte para a extracao: cru, ele traria o fundo do
-   estudio de volta como um retangulo */
-.build-video { opacity: 0; }
-/* o canvas assume assim que o primeiro quadro e extraido; ate la o proprio
-   <video> segura a imagem, entao uma falha na extracao degrada sem buraco */
+.build-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* o titulo quebra antes da coluna do video: sem isso a ultima palavra cai
    sobre o predio, que ocupa a largura inteira do quadro no fim do clipe */
 .panel.area-build h3 { max-width: 11ch; }
@@ -394,9 +419,9 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
           mask-composite: intersect;
 }
 .keys-panel .keys-media::after { display: none; }   /* fade mask handles separation */
-.keys-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; filter: brightness(1.04) contrast(1.02) saturate(1); }
-/* canvas overlays the video to render the mouse-scrubbed playback */
-.keys-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; filter: brightness(1.04) contrast(1.02) saturate(1); }
+.keys-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+/* o canvas cobre o video para desenhar o scrub do mouse */
+.keys-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .keys-canvas.on + .keys-video, .keys-media:has(.keys-canvas.on) .keys-video { opacity: 0; }
 /* the video area invites horizontal scrubbing */
 .keys-media { cursor: none; }
@@ -420,12 +445,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .metrics { text-align: center; }
 .metrics .kicker { display: block; }
 .metrics h2 { font-size: clamp(32px, 4.6vw, 64px); max-width: 18ch; margin: 18px auto 0; }
-.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(30px, 5vw, 80px); margin-top: clamp(60px, 9vh, 110px); }
-.metric .n { font-size: clamp(54px, 8vw, 120px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
-.metric .n em { font-style: normal; color: var(--accent-2); font-size: 0.55em; vertical-align: super; }
-.metric .n .pre { font-size: 0.42em; vertical-align: middle; color: var(--dim-dk); margin-right: 4px; }
-.metric .l { margin-top: 18px; font-size: 14px; letter-spacing: 0.04em; color: var(--dim-dk); }
-@media (max-width: 760px) { .metric-grid { grid-template-columns: 1fr; gap: 50px; } }
 /* qualitative typology cards (replaces hard metrics) */
 .typo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 32px); margin-top: clamp(50px, 8vh, 96px); text-align: left; }
 .typo-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: clamp(26px, 2.4vw, 36px); }
@@ -441,19 +460,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .appr-card h3 { font-size: clamp(22px, 2.1vw, 30px); margin: 16px 0 12px; letter-spacing: -0.02em; }
 .appr-card p { color: var(--dim-lt); font-size: 16px; line-height: 1.55; }
 @media (max-width: 760px) { .appr-grid { grid-template-columns: 1fr; gap: 40px; } }
-
-/* ============ equipe ============ */
-.team-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; flex-wrap: wrap; margin-bottom: 54px; }
-.team-head h2 { font-size: clamp(34px, 5vw, 72px); }
-.team-head p { max-width: 32ch; color: var(--dim-dk); }
-.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(14px, 1.6vw, 24px); }
-.member .ph { position: relative; aspect-ratio: 4/5; overflow: hidden; border-radius: 14px; background: #14182a; }
-.member image-slot { width: 100%; height: 100%; transition: transform .9s var(--ease); }
-.member:hover image-slot { transform: scale(1.05); }
-.member .m-name { font-size: 21px; margin-top: 18px; font-weight: 600; letter-spacing: -0.02em; }
-.member .m-role { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin-top: 7px; }
-.member .m-tag { font-size: 14px; color: var(--dim-dk); margin-top: 9px; }
-@media (max-width: 860px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
 
 /* ============ quote ============ */
 .quote { text-align: center; }
@@ -505,4 +511,44 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition-duration: .01ms !important; }
   .fade, .mask > span { opacity: 1 !important; transform: none !important; }
+}
+
+/* ============ celular: ajustes de tamanho, por ultimo para vencerem as regras gerais ============ */
+@media (max-width: 860px) {
+  .panel { min-height: 620px; }
+  .panel h3 { font-size: clamp(30px, 8.4vw, 40px); margin-top: 10px; }
+  .panel .p-desc { font-size: 15px; margin-top: 12px; line-height: 1.45; }
+  .panel .p-list { margin-top: 16px; gap: 6px; }
+  .panel .p-list li { font-size: 12px; padding: 6px 11px; }
+  .panel .p-body { padding-bottom: 32px; }
+  .panel.area-solid { align-items: flex-end; }
+  .panel.area-solid .p-body { padding-bottom: 40px; }
+  .panel.area-build { height: 200svh; }
+  .panel.area-build h3, .panel.area-build .p-list { max-width: none; }
+  .areas-intro h2 { font-size: clamp(34px, 9.4vw, 44px); }
+  .areas-intro p { font-size: 17px; }
+  .sobre-grid { grid-template-columns: 1fr; gap: 22px; margin-top: 22px; }
+  .sobre-grid h2 { font-size: clamp(28px, 8vw, 36px); }
+  .sobre-grid p { font-size: 16px; }
+  .pad { padding: 72px 0; }
+  .metrics h2, .approach h2 { font-size: clamp(28px, 8vw, 36px); }
+  .quote blockquote { font-size: clamp(26px, 7.6vw, 36px); }
+  .contact-grid h2 { font-size: clamp(30px, 8.4vw, 40px); }
+  .footer .f-logo { font-size: 40px; }
+
+  /* paineis 03 e 04: a imagem ocupa a metade de cima da tela, dissolvida
+     nas quatro bordas, e o texto fica embaixo sem nada por tras */
+  .keys-panel .keys-media, .panel.area-light:not(.area-build) .p-media {
+    top: 8%; bottom: auto; left: 0; width: 100%; height: 50%;
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 14%, #000 82%, transparent 100%);
+    -webkit-mask-composite: source-in;
+            mask-image:
+      linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 14%, #000 82%, transparent 100%);
+            mask-composite: intersect;
+  }
+  .keys-panel::before, .panel.area-light:not(.area-build)::before { display: none; }
+  .panel.area-light .p-media .p-img { object-fit: cover; object-position: center 40%; }
 }

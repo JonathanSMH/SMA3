@@ -6,7 +6,12 @@
 <title>SMA Advocacia · Societário · Imobiliário · Capital · Incorporações</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet" />
+<meta name="description" content="SMA Advocacia: assessoria jurídica societária, imobiliária, de capital e de incorporações para famílias empresárias, investidores e incorporadoras. São Paulo." />
+<meta name="theme-color" content="#0F1F46" />
+<link rel="preload" as="image" href="assets/hero/01.webp" fetchpriority="high" />
+<!-- a folha de fontes nao segura a primeira pintura: entra depois, com swap -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500&display=swap" /></noscript>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 <link rel="icon" type="image/png" href="assets/favicon.png" />
 <link rel="apple-touch-icon" href="assets/favicon.png" />
@@ -29,7 +34,15 @@
       <a href="#contato">Contato</a>
     </div>
     <a href="#contato" class="nav-cta">Agendar consulta</a>
+    <button class="nav-menu" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </nav>
+  <div class="menu" id="menu">
+    <a href="#sobre">O Escritório</a>
+    <a href="#areas">Áreas de atuação</a>
+    <a href="#numeros">Como atuamos</a>
+    <a href="#contato">Contato</a>
+    <a href="#contato" class="btn light-fill">Agendar consulta</a>
+  </div>
 
   <main id="top">
 
@@ -37,11 +50,8 @@
   <section class="hero-scrub scene dark" data-screen-label="Hero" style="height: 460vh;">
     <div class="hs-sticky">
       <div class="hs-media">
-        <video class="hs-video" muted playsinline preload="auto" tabindex="-1" disablepictureinpicture>
-          <source src="assets/hero-bg.mp4" type="video/mp4" />
-        </video>
+        <img class="hs-poster" src="assets/hero/01.webp" width="720" height="1280" alt="" fetchpriority="high" decoding="async" />
         <canvas class="hs-canvas"></canvas>
-        <div class="hs-loader"><div class="hs-loader-bar"><i></i></div></div>
       </div>
 
       <div class="hs-content">
@@ -52,9 +62,9 @@
             <h1>
               <span class="mask"><span>A engenharia</span></span>
               <span class="mask d1"><span>jurídica por trás</span></span>
-              <span class="mask d2"><span class="serif-it">das grandes operações.</span></span>
+              <span class="mask d2"><span class="serif-it">das operações imobiliárias.</span></span>
             </h1>
-            <p class="sub fade d3">Assessoria jurídica de alta complexidade para famílias, investidores e incorporadoras, da arquitetura societária à engenharia de capital que viabiliza cada operação.</p>
+            <p class="sub fade d3">Assessoria jurídica para famílias, investidores e incorporadoras, da arquitetura societária à engenharia de capital que viabiliza cada operação.</p>
             <div class="acts fade d3">
               <a href="#contato" class="btn">Agende uma conversa</a>
               <a href="#sobre" class="link-arrow"><span class="txt">Conheça o escritório</span><span class="chev">›</span></a>
@@ -74,11 +84,11 @@
   <section class="scene light pad" id="sobre" data-screen-label="O Escritório">
     <div class="wrap">
       <span class="kicker fade">O Escritório</span>
-      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:clamp(36px,6vw,100px);align-items:start;margin-top:34px;">
-        <h2 class="fade" style="font-size:clamp(30px,3.8vw,56px);max-width:18ch;">Um escritório-boutique para questões que <span class="serif-it" style="color:var(--accent)">não admitem improviso.</span></h2>
+      <div class="sobre-grid">
+        <h2 class="fade">Um escritório-boutique para questões que <span class="serif-it" style="color:var(--accent)">não admitem improviso.</span></h2>
         <div class="fade d1">
-          <p style="color:var(--dim-lt);font-size:18px;line-height:1.65;margin-bottom:20px;max-width:46ch;">A SMA nasceu da convicção de que operações de grande porte exigem uma advocacia próxima, técnica e estratégica, não um balcão de pareceres.</p>
-          <p style="color:var(--dim-lt);font-size:18px;line-height:1.65;max-width:46ch;">Atuamos lado a lado de famílias empresárias, investidores e incorporadoras, e como o braço jurídico de operações reais: da arquitetura societária à engenharia de capital e à viabilização de empreendimentos imobiliários complexos. Na SMA, você é assessorado por quem também opera.</p>
+          <p>A SMA nasceu da convicção de que operações de grande porte exigem uma advocacia próxima, técnica e estratégica, não um balcão de pareceres.</p>
+          <p>Atuamos lado a lado de famílias empresárias, investidores e incorporadoras, e como o braço jurídico de operações reais: da arquitetura societária à engenharia de capital e à viabilização de empreendimentos imobiliários complexos. Na SMA, você é assessorado por quem também opera.</p>
         </div>
       </div>
     </div>
@@ -97,11 +107,7 @@
   <section class="panel scene area-light area-build" data-screen-label="Área · Societário">
     <div class="build-sticky">
     <div class="p-media build-media">
-      <video class="build-video" muted playsinline preload="none" tabindex="-1" disablepictureinpicture
-             aria-label="Um edifício se monta laje a laje conforme a página desce">
-        <source src="assets/estrutura-montagem.mp4" type="video/mp4" />
-      </video>
-      <canvas class="build-canvas"></canvas>
+      <canvas class="build-canvas" role="img" aria-label="Um edifício se monta laje a laje conforme a página desce"></canvas>
     </div>
     <div class="p-body"><div class="wrap">
       <div class="p-num fade">01 · Estrutura Societária &amp; Patrimonial</div>
@@ -129,8 +135,8 @@
   <!-- panel 03 — keys video (hero-style faded panel) -->
   <section class="panel scene keys-panel" data-screen-label="Área · Incorporações">
     <div class="p-media keys-media">
-      <video class="keys-video" muted loop playsinline preload="auto" tabindex="-1" disablepictureinpicture>
-        <source src="assets/keys-bg.mp4" type="video/mp4" />
+      <video class="keys-video" muted playsinline preload="none" poster="assets/chaves-poster.webp" tabindex="-1" disablepictureinpicture>
+        <source src="assets/chaves.mp4" type="video/mp4" />
       </video>
       <canvas class="keys-canvas"></canvas>
     </div>
@@ -200,8 +206,8 @@
           <h2 class="fade d1" style="margin-top:14px;">Vamos conversar sobre a sua operação.</h2>
           <div class="c-info">
             <div class="info fade d2"><div class="il" style="color:var(--accent)">Escritório</div><div class="iv">R. Gomes de Carvalho, 911 · Vila Olímpia · São Paulo · SP</div></div>
-            <div class="info fade d2"><div class="il" style="color:var(--accent)">E-mail</div><div class="iv">contato@smh-mfo.com</div></div>
-            <div class="info fade d3"><div class="il" style="color:var(--accent)">Telefone</div><div class="iv">+55 11 91823-1486</div></div>
+            <div class="info fade d2"><div class="il" style="color:var(--accent)">E-mail</div><div class="iv"><a href="mailto:contato@smh-mfo.com">contato@smh-mfo.com</a></div></div>
+            <div class="info fade d3"><div class="il" style="color:var(--accent)">Telefone</div><div class="iv"><a href="tel:+5511918231486">+55 11 91823-1486</a></div></div>
           </div>
         </div>
         <form class="form fade d2" id="contact-form" style="--line-dk:var(--line-lt);">
@@ -279,16 +285,7 @@
     </div>
   </footer>
 
-  <script src="image-slot.js"></script>
-  <script src="cinematic.js"></script>
-
-  <!-- ====================== TWEAKS ====================== -->
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-  <div id="tweaks-root"></div>
-  <script type="text/babel" src="tweaks-panel.jsx"></script>
-  <script type="text/babel" src="tweaks-cinematic.jsx"></script>
+  <script src="cinematic.js" defer></script>
 
 </body>
 </html>
