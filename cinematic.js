@@ -17,7 +17,7 @@
      passadas cada vez mais densas e desenha o mais proximo do
      ponto da rolagem. A primeira passada (4 quadros) chega em
      menos de um segundo e ja da o scrub inteiro; as seguintes so
-     refinam. No celular a sequencia para na metade da densidade.
+     refinam. So com economia de dados a sequencia para na metade.
      ============================================================ */
   function sequencia(pasta, total, aoChegar) {
     const quadros = new Array(total);
@@ -84,21 +84,34 @@
 
   const hsSeq = hsCanvas ? sequencia("assets/hero", HS_TOTAL, (i) => {
     // repinta se o quadro que chegou e o que a rolagem pede agora
-    if (hsReady && Math.round(hsCur * (HS_TOTAL - 1)) === i) { hsDrawIdx = -1; hsDraw(i); }
+    if (hsReady && Math.abs(hsCur * (HS_TOTAL - 1) - i) < 1) { hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1)); }
   }) : null;
 
-  function hsDraw(idx) {
+  // Entre um quadro e o seguinte o canvas mostra uma mescla dos dois, na
+  // proporcao da posicao da rolagem: com o dedo indo devagar a imagem
+  // escorrega em vez de pular de quadro em quadro. So mescla quando os
+  // dois vizinhos ja chegaram; senao desenha o mais proximo.
+  function hsDraw(pos) {
     if (!ctx || !hsSeq) return;
-    idx = clamp(Math.round(idx), 0, HS_TOTAL - 1);
-    const img = hsSeq.quadros[idx] || hsSeq.proximo(idx);
+    pos = clamp(pos, 0, HS_TOTAL - 1);
+    const i0 = Math.floor(pos), i1 = Math.min(HS_TOTAL - 1, i0 + 1), t = pos - i0;
+    const a = hsSeq.quadros[i0], b = hsSeq.quadros[i1];
+    const mescla = a && b && i0 !== i1 && t > 0.04 && t < 0.96;
+    const chave = mescla ? pos : Math.round(pos);
+    const img = mescla ? a : (hsSeq.quadros[Math.round(pos)] || hsSeq.proximo(Math.round(pos)));
     if (!img) return;
-    if (idx === hsDrawIdx && img === hsLastImg) return;
+    if (chave === hsDrawIdx && img === hsLastImg) return;
     const cw = hsCanvas.width, ch = hsCanvas.height;
     const sr = img.naturalWidth / img.naturalHeight, dr = cw / ch;
     let dw, dh, dx, dy;
     if (sr > dr) { dh = ch; dw = ch * sr; dx = (cw - dw) / 2; dy = 0; }     // cover
     else { dw = cw; dh = cw / sr; dx = 0; dy = (ch - dh) / 2; }
-    try { ctx.drawImage(img, dx, dy, dw, dh); hsDrawIdx = idx; hsLastImg = img; } catch (e) {}
+    try {
+      ctx.globalAlpha = 1;
+      ctx.drawImage(img, dx, dy, dw, dh);
+      if (mescla) { ctx.globalAlpha = t; ctx.drawImage(b, dx, dy, dw, dh); ctx.globalAlpha = 1; }
+      hsDrawIdx = chave; hsLastImg = img;
+    } catch (e) {}
   }
 
   // Laco de suavizacao: o quadro pintado persegue a rolagem em vez de
@@ -128,7 +141,7 @@
       hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1));
       hsCanvas.classList.add("ready");
       requestFrame();
-      const densidade = reduce ? [16] : estreito || economia ? [16, 8, 4, 2] : [16, 8, 4, 2, 1];
+      const densidade = reduce ? [16] : economia ? [16, 8, 4, 2] : [16, 8, 4, 2, 1];
       await hsSeq.passadas(densidade, estreito ? 4 : 8);
       if (hsPoster) hsPoster.remove();
     })();
@@ -166,9 +179,11 @@
   }
 
   /* ---------- revelar ao entrar ---------- */
+  // no celular o texto entra assim que encosta na tela; no desktop espera
+  // um pedaco visivel para a entrada nao acontecer fora do olhar
   const io = new IntersectionObserver((ents) => {
     ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-  }, { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
+  }, estreito ? { threshold: 0, rootMargin: "0px 0px 6% 0px" } : { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
   document.querySelectorAll(".fade, .mask").forEach((el) => io.observe(el));
 
   // a abertura do hero esta acima da dobra: revela de imediato
@@ -177,7 +192,7 @@
   }
   if (document.readyState === "complete") requestAnimationFrame(revealHero);
   else window.addEventListener("load", () => requestAnimationFrame(revealHero));
-  setTimeout(revealHero, 300);
+  setTimeout(revealHero, estreito ? 40 : 300);
   // rede de seguranca: aba aberta em segundo plano congela transicoes CSS;
   // passado o tempo da entrada, o texto do hero e cravado no estado final
   setTimeout(() => {
@@ -349,13 +364,18 @@
       bCanvas.height = Math.round(h * dpr);
     }
     const bSeq = sequencia("assets/predio", B_TOTAL, (i) => {
-      if (bReady && Math.round(bCur * (B_TOTAL - 1)) === i) { bDrawIdx = -1; bDraw(i); }
+      if (bReady && Math.abs(bCur * (B_TOTAL - 1) - i) < 1) { bDrawIdx = -1; bDraw(bCur * (B_TOTAL - 1)); }
     });
-    function bDraw(idx) {
-      idx = clamp(Math.round(idx), 0, B_TOTAL - 1);
-      const img = bSeq.quadros[idx] || bSeq.proximo(idx);
+    // mesma mescla entre vizinhos do hero: rolagem lenta sem degraus
+    function bDraw(pos) {
+      pos = clamp(pos, 0, B_TOTAL - 1);
+      const i0 = Math.floor(pos), i1 = Math.min(B_TOTAL - 1, i0 + 1), t = pos - i0;
+      const a = bSeq.quadros[i0], b2 = bSeq.quadros[i1];
+      const mescla = a && b2 && i0 !== i1 && t > 0.04 && t < 0.96;
+      const chave = mescla ? pos : Math.round(pos);
+      const img = mescla ? a : (bSeq.quadros[Math.round(pos)] || bSeq.proximo(Math.round(pos)));
       if (!img) return;
-      if (idx === bDrawIdx) return;
+      if (chave === bDrawIdx) return;
       const cw = bCanvas.width, ch = bCanvas.height;
       let dh = ch * (B_ALTURA / (B_PES - B_TOPO));
       let dw = dh * img.naturalWidth / img.naturalHeight;
@@ -363,10 +383,12 @@
       // passaria da largura da tela e as laterais dissolvidas ficariam de fora
       if (dw > cw) { dw = cw; dh = dw * img.naturalHeight / img.naturalWidth; }
       try {
+        bctx.globalAlpha = 1;
         bctx.fillStyle = bFundo;
         bctx.fillRect(0, 0, cw, ch);
         bctx.drawImage(img, (cw - dw) / 2, ch * B_BASE - dh * B_PES, dw, dh);
-        bDrawIdx = idx;
+        if (mescla) { bctx.globalAlpha = t; bctx.drawImage(b2, (cw - dw) / 2, ch * B_BASE - dh * B_PES, dw, dh); bctx.globalAlpha = 1; }
+        bDrawIdx = chave;
       } catch (e) {}
     }
     // 0 quando o topo do painel encosta no topo da tela, 1 quando a secao
@@ -398,7 +420,7 @@
       bReady = true;
       bSize(); bDrawIdx = -1; bDraw(bCur * (B_TOTAL - 1)); bCanvas.classList.add("on");
       bOnScroll();
-      await bSeq.passadas(estreito || economia ? [8, 4, 2] : [8, 4, 2, 1], estreito ? 4 : 8);
+      await bSeq.passadas(economia ? [8, 4, 2] : [8, 4, 2, 1], estreito ? 4 : 8);
     }
     const bIO = new IntersectionObserver((ents) => {
       if (!ents.some((e) => e.isIntersecting)) return;

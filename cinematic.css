@@ -551,4 +551,16 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   }
   .keys-panel::before, .panel.area-light:not(.area-build)::before { display: none; }
   .panel.area-light .p-media .p-img { object-fit: cover; object-position: center 40%; }
+
+  /* hero: botao de largura inteira e o link centrado embaixo dele */
+  .hs-intro .acts { flex-direction: column; align-items: stretch; gap: 12px; margin-top: 22px; }
+  .hs-intro .acts .btn { justify-content: center; padding: 14px 24px; }
+  .hs-intro .acts .link-arrow { justify-content: center; }
+
+  /* textos aparecem mais rapido: entrada curta, quase sem escalonamento */
+  .fade { transform: translateY(14px); transition-duration: .5s, .5s; }
+  .fade.d1 { transition-delay: .04s; } .fade.d2 { transition-delay: .08s; } .fade.d3 { transition-delay: .12s; } .fade.d4 { transition-delay: .16s; }
+  .mask > span { transform: translateY(14px); transition-duration: .5s, .55s; }
+  .mask.d1 > span { transition-delay: .06s; } .mask.d2 > span { transition-delay: .12s; } .mask.d3 > span { transition-delay: .18s; }
+  .hs-stage { transition-duration: .45s, .45s; }
 }
