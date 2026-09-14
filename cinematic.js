@@ -166,7 +166,7 @@
     if (nav) nav.classList.toggle("solid", y > 30);
     if (progress) {
       const h = document.documentElement.scrollHeight - innerHeight;
-      progress.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
+      progress.style.transform = "scaleX(" + (h > 0 ? y / h : 0) + ")";
     }
   }
   window.addEventListener("scroll", onScroll, { passive: true });

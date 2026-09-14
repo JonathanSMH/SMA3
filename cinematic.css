@@ -54,7 +54,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .serif-it { font-family: var(--serif); font-style: italic; font-weight: 500; }
 
 /* progress bar */
-.progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--accent-2); width: 0; z-index: 900; transition: width .1s linear; }
+.progress { position: fixed; top: 0; left: 0; height: 2px; width: 100%; background: var(--accent-2); z-index: 900; transform: scaleX(0); transform-origin: left; transition: transform .1s linear; }
 
 /* ============ liquid-glass cursor ============ */
 @media (hover: hover) and (pointer: fine) {
@@ -68,7 +68,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   transform: translate(0, 0); /* overridden by JS rAF loop */
   pointer-events: none;
   opacity: 0;
-  transition: width .18s var(--ease), height .18s var(--ease), opacity .3s var(--ease), transform .18s var(--ease);
+  transform-origin: 0 0;
+  transition: scale .18s var(--ease), opacity .3s var(--ease);
   /* arrow shape identical to the OS default pointer */
   -webkit-clip-path: polygon(0 0, 0 75%, 20% 57%, 33% 88%, 46% 82%, 32% 53%, 58% 53%);
           clip-path: polygon(0 0, 0 75%, 20% 57%, 33% 88%, 46% 82%, 32% 53%, 58% 53%);
@@ -88,11 +89,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   background: linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 42%);
 }
 .lg-cursor.ready { opacity: 1; }
-.lg-cursor.hover { width: 32px; height: 43px; }
-.lg-cursor.down {
-  width: 19px; height: 26px;
-  transform: translate(1px, 1px);
-}
+.lg-cursor.hover { scale: 1.33; }
+.lg-cursor.down { scale: 0.8; }
 /* on light backgrounds: navy rim instead of white glow */
 .lg-cursor.on-light {
   background: rgba(15,31,70,0.12);
@@ -144,9 +142,9 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   height: 56px; display: flex; align-items: center; justify-content: space-between;
   padding: 0 var(--gutter);
   background: rgba(15,31,70,0);
-  transition: background .5s var(--ease), backdrop-filter .5s var(--ease), height .4s var(--ease);
+  transition: background .5s var(--ease), backdrop-filter .5s var(--ease);
 }
-.nav.solid { background: rgba(10,23,51,0.78); backdrop-filter: saturate(160%) blur(18px); height: 52px; }
+.nav.solid { background: rgba(10,23,51,0.78); backdrop-filter: saturate(160%) blur(18px); }
 .nav .logo { font-family: var(--serif); font-weight: 600; font-size: 22px; letter-spacing: 0.18em; color: var(--text-dk); }
 .nav-links { display: flex; gap: clamp(18px, 2.4vw, 40px); }
 .nav-links a { font-size: 15px; color: var(--dim-dk); transition: color .3s; letter-spacing: 0; }
@@ -323,7 +321,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .panel .p-media::after { content: ""; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(10,23,51,0.34) 0%, rgba(10,23,51,0) 26%, rgba(10,23,51,0.20) 52%, rgba(10,23,51,0.94) 100%); }
 .panel .p-body { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(56px, 9vh, 110px); }
-.panel .p-num { font-size: 13px; letter-spacing: 0.22em; color: var(--accent-2); font-weight: 600; }
+.panel .p-num { font-size: 13px; letter-spacing: 0.14em; color: var(--accent-2); font-weight: 600; }
 .panel h3 { font-size: clamp(38px, 6.4vw, 96px); margin-top: 14px; letter-spacing: -0.035em; }
 .panel .p-desc { margin-top: 22px; max-width: 50ch; font-size: clamp(17px, 1.5vw, 21px); color: var(--dim-dk); line-height: 1.5; }
 .panel .p-list { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px 12px; max-width: 760px; }
