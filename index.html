@@ -30,7 +30,7 @@
     <div class="nav-links">
       <a href="#sobre">O Escritório</a>
       <a href="#areas">Áreas</a>
-      <a href="#numeros">Como atuamos</a>
+      <a href="#metodo">Como atuamos</a>
       <a href="#contato">Contato</a>
     </div>
     <a href="#contato" class="nav-cta">Agendar consulta</a>
@@ -39,7 +39,7 @@
   <div class="menu" id="menu">
     <a href="#sobre">O Escritório</a>
     <a href="#areas">Áreas de atuação</a>
-    <a href="#numeros">Como atuamos</a>
+    <a href="#metodo">Como atuamos</a>
     <a href="#contato">Contato</a>
     <a href="#contato" class="btn light-fill">Agendar consulta</a>
   </div>
@@ -122,8 +122,8 @@
   </section>
 
   <!-- panel 02 -->
-  <section class="panel scene area-solid veus-fundo" data-screen-label="Área · Imobiliário">
-    <iframe class="veus" data-src="assets/veus.html?p=0.6" title="" aria-hidden="true" tabindex="-1" loading="lazy"></iframe>
+  <section class="panel scene area-solid" data-screen-label="Área · Imobiliário">
+    <div class="p-media lotes-media"><img class="p-img" src="assets/lotes.svg" width="900" height="900" loading="lazy" decoding="async" alt="Planta de uma quadra em perspectiva com um lote destacado e o volume que ele permite" /></div>
     <div class="p-body"><div class="wrap">
       <div class="p-num fade">02 · Imobiliário &amp; Tributário Imobiliário</div>
       <h3 class="fade d1">Segurança em cada metro quadrado.</h3>
@@ -164,8 +164,7 @@
   </section>
 
   <!-- ====================== COMO ATUAMOS ====================== -->
-  <section class="scene dark2 pad metrics veus-fundo" id="numeros" data-screen-label="Como atuamos">
-    <iframe class="veus" data-src="assets/veus.html?p=0.6" title="" aria-hidden="true" tabindex="-1" loading="lazy"></iframe>
+  <section class="scene dark2 pad metrics" id="numeros" data-screen-label="Como atuamos">
     <div class="wrap">
       <span class="kicker fade">Como atuamos</span>
       <h2 class="fade d1">Profundidade que se traduz em estrutura.</h2>
@@ -178,7 +177,7 @@
   </section>
 
   <!-- ====================== ABORDAGEM ====================== -->
-  <section class="scene light pad approach" data-screen-label="Abordagem">
+  <section class="scene light pad approach" id="metodo" data-screen-label="Abordagem">
     <div class="wrap">
       <span class="kicker fade">Como trabalhamos</span>
       <h2 class="fade d1" style="margin-top:16px;">Profundidade antes da pressa.</h2>
@@ -219,6 +218,7 @@
           <div class="field" style="border-color:var(--line-lt);"><textarea id="f-msg" name="mensagem" rows="3" placeholder=" " style="color:var(--text-lt);"></textarea><label for="f-msg" style="color:var(--dim-lt);">Conte-nos sobre a operação</label></div>
           <button class="btn" type="submit" id="form-btn">Enviar mensagem</button>
           <div id="form-status" style="display:none;margin-top:16px;font-size:15px;"></div>
+          <p class="f-nota">Conversa confidencial, respondida pelo escritório. Se preferir, <a href="https://wa.me/5511918231486" target="_blank" rel="noopener">fale pelo WhatsApp</a>.</p>
         </form>
         <script>
           document.getElementById('contact-form').addEventListener('submit', async function(e) {

@@ -500,7 +500,10 @@
     function follow() {
       cx += (mx - cx) * 0.28;
       cy += (my - cy) * 0.28;
-      lgCursor.style.transform = `translate(${cx}px, ${cy}px) translate(-1px, -1px)`;
+      // posicao pela propriedade translate, e nao por transform: a escala do
+      // hover e do clique (scale) e aplicada antes do translate e por isso
+      // nao multiplica a posicao, o que fazia o cursor pular no clique
+      lgCursor.style.translate = `${cx - 1}px ${cy - 1}px`;
       if (Math.abs(mx - cx) < 0.3 && Math.abs(my - cy) < 0.3) { following = false; return; }
       requestAnimationFrame(follow);
     }
