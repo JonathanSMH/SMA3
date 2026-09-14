@@ -59,7 +59,7 @@
         await new Promise((r) => setTimeout(r, 0));   // devolve a mao para a UI
       }
     }
-    return { quadros, proximo, passadas };
+    return { quadros, proximo, passadas, carregar };
   }
 
   /* ============================================================
@@ -137,13 +137,17 @@
       // o poster (quadro 01) ja esta na pagina como <img>; o canvas assume
       // assim que o mesmo quadro estiver decodificado, sem salto
       await hsSeq.passadas([HS_TOTAL], 1);
+      const densidade = reduce ? [16] : economia ? [16, 8, 4, 2] : [16, 8, 4, 2, 1];
+      // o canvas e opaco (alpha: false): so assume quando tem quadro para
+      // mostrar, senao seria um retangulo preto por cima do poster
+      if (!hsSeq.quadros[0]) await hsSeq.passadas([16], 2);
+      if (!hsSeq.proximo(0)) return;
       hsReady = true;
       hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1));
       hsCanvas.classList.add("ready");
       requestFrame();
-      const densidade = reduce ? [16] : economia ? [16, 8, 4, 2] : [16, 8, 4, 2, 1];
       await hsSeq.passadas(densidade, estreito ? 4 : 8);
-      if (hsPoster) hsPoster.remove();
+      if (hsPoster && hsSeq.quadros[0]) hsPoster.remove();
     })();
   }
   window.addEventListener("resize", () => { hsSizeCanvas(); hsDrawIdx = -1; hsDraw(hsCur * (HS_TOTAL - 1)); });
@@ -434,12 +438,14 @@
 
     async function bCarregar() {
       if (reduce) {
-        // sem animacao: mostra o predio pronto e para por ai
-        await bSeq.passadas([B_TOTAL], 1);
+        // sem animacao: mostra o predio pronto (ultimo quadro) e para por ai
+        await bSeq.carregar(B_TOTAL - 1);
+        if (!bSeq.quadros[B_TOTAL - 1]) return;
         bSize(); bDrawIdx = -1; bDraw(B_TOTAL - 1); bCanvas.classList.add("on");
         return;
       }
       await bSeq.passadas([16], 4);
+      if (!bSeq.proximo(0)) return;   // nada chegou: deixa o marfim da secao
       bReady = true;
       bSize(); bDrawIdx = -1; bDraw(bCur * (B_TOTAL - 1)); bCanvas.classList.add("on");
       bOnScroll();
