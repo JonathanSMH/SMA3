@@ -466,23 +466,25 @@
     }
   }
 
-  /* ---------- fundo do depoimento: veus (Radiant) ----------
-     O iframe do shader so ganha src quando a secao esta a meia tela de
-     distancia e perde o src quando sai, para nao rodar WebGL fora da
-     tela. Com reduced-motion o shader ja nasce parado (u_time = 0). */
-  const veus = document.querySelector(".quote .veus");
-  if (veus) {
+  /* ---------- fundo de veus (Radiant) nas secoes navy ----------
+     Cada iframe so ganha src quando a sua secao esta perto da tela e
+     perde o src quando sai, para no maximo um ou dois shaders rodarem
+     ao mesmo tempo. Com reduced-motion o shader nasce parado. */
+  const veusTodos = [...document.querySelectorAll(".veus-fundo .veus")];
+  if (veusTodos.length) {
     const vIO = new IntersectionObserver((ents) => {
-      const dentro = ents.some((e) => e.isIntersecting);
-      if (dentro && !veus.src) {
-        veus.src = veus.dataset.src;
-        veus.addEventListener("load", () => veus.classList.add("on"), { once: true });
-      } else if (!dentro && veus.src) {
-        veus.classList.remove("on");
-        veus.removeAttribute("src");
-      }
-    }, { rootMargin: "50% 0px" });
-    vIO.observe(veus);
+      ents.forEach((e) => {
+        const f = e.target;
+        if (e.isIntersecting && !f.src) {
+          f.src = f.dataset.src;
+          f.addEventListener("load", () => f.classList.add("on"), { once: true });
+        } else if (!e.isIntersecting && f.src) {
+          f.classList.remove("on");
+          f.removeAttribute("src");
+        }
+      });
+    }, { rootMargin: "30% 0px" });
+    veusTodos.forEach((f) => vIO.observe(f));
   }
 
   /* ---------- cursor de vidro ---------- */
