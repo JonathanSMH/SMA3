@@ -259,15 +259,32 @@
     });
   });
 
-  /* ---------- painel 03: chaves, parado ate o mouse passar ----------
+  /* ---------- painel 03: chaves ----------
      O <video> nasce com preload="none" e um poster WebP: e o poster que
-     todo mundo ve. So quem tem mouse, e so quando o painel se aproxima,
-     baixa o clipe (280 KB, sem audio) para o scrub horizontal. No toque
-     nao ha scrub, entao o clipe nunca e pedido. */
+     aparece primeiro. Com mouse, o clipe (280 KB, sem audio) so e baixado
+     quando o painel se aproxima e o playhead segue o mouse. No toque nao
+     ha scrub: o clipe roda em loop enquanto o painel esta na tela e para
+     quando sai, para nao gastar bateria com uma coisa que ninguem ve. */
   const keysVideo = document.querySelector(".keys-video");
   const keysCanvas = document.querySelector(".keys-canvas");
   const keysPanel = document.querySelector(".keys-panel");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (keysVideo && keysPanel && !finePointer && !reduce) {
+    keysVideo.muted = true;
+    keysVideo.loop = true;
+    keysVideo.playsInline = true;
+    let pedido = false;
+    const tIO = new IntersectionObserver((ents) => {
+      const dentro = ents.some((e) => e.isIntersecting);
+      if (dentro) {
+        if (!pedido) { pedido = true; keysVideo.preload = "auto"; keysVideo.load(); }
+        const p = keysVideo.play(); if (p && p.catch) p.catch(() => {});
+      } else if (!keysVideo.paused) {
+        keysVideo.pause();
+      }
+    }, { rootMargin: "40% 0px" });
+    tIO.observe(keysPanel);
+  }
   if (keysVideo && keysPanel && keysCanvas && finePointer && !reduce) {
     keysVideo.muted = true;
     keysVideo.loop = false;
