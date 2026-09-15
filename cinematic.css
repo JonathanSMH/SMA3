@@ -632,3 +632,30 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
   .hs-intro .mask.d1 > span { animation-delay: .06s; } .hs-intro .mask.d2 > span { animation-delay: .12s; }
   .hs-intro .fade.d3 { animation-delay: .18s; }
 }
+
+/* ============ faixa de cookies (pixel.js) ============ */
+.cookies {
+  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60;
+  margin: 0 auto; max-width: 560px;
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 16px 14px 20px;
+  background: var(--black-2); color: var(--dim-dk);
+  border: 1px solid var(--line-dk); border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  animation: cookies-subir .42s var(--ease) both;
+}
+@keyframes cookies-subir { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.cookies p { margin: 0; flex: 1 1 auto; font-size: 14px; line-height: 1.45; }
+.cookies-acoes { display: flex; gap: 8px; flex: 0 0 auto; }
+.cookies-acoes button {
+  font: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 10px 14px; border-radius: 980px; cursor: pointer;
+}
+.cookies-ok { background: var(--ivory); color: var(--accent); border: 1px solid var(--ivory); }
+.cookies-recusar { background: transparent; color: var(--dim-dk); border: 1px solid var(--line-dk); }
+.cookies-acoes button:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+@media (max-width: 560px) {
+  .cookies { flex-direction: column; align-items: stretch; }
+  .cookies-acoes { justify-content: flex-end; }
+}
+@media (prefers-reduced-motion: reduce) { .cookies { animation: none; } }

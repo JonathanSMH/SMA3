@@ -238,6 +238,7 @@
                 status.style.display = 'block';
                 status.style.color = 'var(--accent)';
                 status.textContent = 'Mensagem enviada. Retornaremos em breve.';
+                document.dispatchEvent(new CustomEvent('formulario-enviado'));
                 this.reset();
                 btn.textContent = 'Enviar mensagem';
                 btn.disabled = false;
@@ -288,6 +289,7 @@
   </footer>
 
   <script src="cinematic.js" defer></script>
+  <script src="pixel.js" defer></script>
 
 </body>
 </html>
