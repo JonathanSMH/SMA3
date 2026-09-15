@@ -15,7 +15,9 @@
   var CHAVE = 'consentimento-cookies';
   var CHAVE_ORIGEM = 'origem-visita';
   var MENSAGEM = 'Olá. Vim pelo site da SMA e gostaria de conversar sobre uma operação.';
-  var ASSUNTOS = {}; // utm_campaign -> "sobre ..." quando houver campanha
+  var ASSUNTOS = { // utm_campaign -> "sobre ..."
+    'leads-incorporadores': 'sobre incorporação e patrimônio de afetação'
+  };
 
   function guardado(chave, valor) {
     try {
