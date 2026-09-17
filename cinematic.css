@@ -60,7 +60,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 /* ============ liquid-glass cursor ============ */
 @media (hover: hover) and (pointer: fine) {
   /* hide the native arrow site-wide; the bubble replaces it */
-  html, body, a, button, .btn, .nav-cta, .link-arrow, [role="button"], input, textarea, label { cursor: none; }
+  html, body, a, button, .btn, .nav-cta, .link-arrow, [role="button"] { cursor: none; }
 }
 .lg-cursor {
   position: fixed; top: 0; left: 0; z-index: 9999;
@@ -524,18 +524,13 @@ h1, h2, h3 { font-weight: 600; line-height: 1.04; letter-spacing: -0.028em; }
 .info { padding: 18px 0; border-bottom: 1px solid var(--line-lt); }
 .info .il { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 6px; }
 .info .iv { font-size: 17px; line-height: 1.5; }
-.form { display: flex; flex-direction: column; }
-.field { position: relative; border-bottom: 1px solid var(--line-dk); padding: 20px 0 11px; }
-.field label { position: absolute; top: 20px; left: 0; font-size: 16px; color: var(--dim-dk-2); pointer-events: none; transition: all .35s var(--ease); }
-.field input, .field textarea { width: 100%; background: transparent; border: none; outline: none; resize: none; font-family: var(--sans); font-size: 17px; color: var(--text-dk); }
-.field input:focus + label, .field input:not(:placeholder-shown) + label,
-.field textarea:focus + label, .field textarea:not(:placeholder-shown) + label {
-  top: 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-2);
-}
-.field.focus { border-color: var(--accent-2); }
-.form .btn { margin-top: 32px; align-self: flex-start; }
-.form .f-nota { margin-top: 18px; font-size: 14px; line-height: 1.55; color: var(--dim-lt); max-width: 40ch; }
-.form .f-nota a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.c-zap { display: flex; flex-direction: column; align-items: flex-start; padding-top: 6px; }
+.c-zap .kicker { color: var(--accent); }
+.c-zap-txt { margin-top: 18px; font-size: 19px; line-height: 1.5; color: var(--text-lt); max-width: 30ch; }
+.c-zap .btn-zap { margin-top: 32px; padding: 16px 28px; font-size: 16px; }
+.c-zap .btn-zap:hover { transform: translateY(-1px); }
+.c-zap .ico-zap { flex: none; }
+.c-zap .f-nota { margin-top: 18px; font-size: 14px; line-height: 1.55; color: var(--dim-lt); max-width: 40ch; }
 @media (max-width: 820px) { .contact-grid { grid-template-columns: 1fr; } }
 
 /* ============ footer ============ */

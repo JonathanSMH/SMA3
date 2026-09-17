@@ -4,10 +4,10 @@
    - O Pixel carrega por padrao (interesse legitimo para medicao de anuncio,
      LGPD art. 7, IX). "Recusar" revoga e a escolha fica no navegador.
    - Eventos: PageView ao abrir; ViewContent quando a secao de contato entra
-     na tela; Lead no clique em WhatsApp, e-mail ou telefone e no envio do
-     formulario (a pagina dispara "formulario-enviado" quando o Formspree
-     responde ok). Cada Lead leva um eventID para deduplicar com a API de
-     Conversoes, quando ela entrar.
+     na tela; Lead no clique em WhatsApp (botao da secao de contato e os
+     demais links wa.me), e-mail ou telefone. Nao ha mais formulario.
+     Cada Lead leva um eventID para deduplicar com a API de Conversoes,
+     quando ela entrar.
    - Origem: utm_source / utm_campaign do link do anuncio ficam na sessao e
      entram na mensagem que abre no WhatsApp. */
 (function () {
@@ -47,10 +47,6 @@
       var canal = href.indexOf('wa.me') >= 0 ? 'whatsapp' : href.indexOf('mailto:') === 0 ? 'email' : 'telefone';
       window.fbq('track', 'Lead', { content_name: canal }, { eventID: idEvento('lead') });
     }, true);
-
-    document.addEventListener('formulario-enviado', function () {
-      if (window.fbq) window.fbq('track', 'Lead', { content_name: 'formulario' }, { eventID: idEvento('lead') });
-    });
 
     var contato = document.getElementById('contato');
     if (contato && 'IntersectionObserver' in window) {

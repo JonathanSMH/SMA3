@@ -254,12 +254,6 @@
   window.addEventListener("resize", requestFrame);
   frame();
 
-  /* ---------- foco do formulario ---------- */
-  document.querySelectorAll(".field input, .field textarea").forEach((el) => {
-    el.addEventListener("focus", () => el.closest(".field").classList.add("focus"));
-    el.addEventListener("blur", () => el.closest(".field").classList.remove("focus"));
-  });
-
   /* ---------- ancoras com deslocamento da nav ---------- */
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener("click", (e) => {
