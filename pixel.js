@@ -98,7 +98,7 @@
     var abertura = MENSAGEM;
     if (dados) {
       var assunto = ASSUNTOS[dados.campanha];
-      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : '') + ' e gostaria de falar com um advogado sobre um investimento imobiliário.';
+      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : ' da SMA') + ' e gostaria de falar com um advogado.';
     }
     document.addEventListener('click', function (e) {
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me"]');
