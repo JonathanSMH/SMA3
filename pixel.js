@@ -14,9 +14,9 @@
   var PIXEL_ID = '1104154028678334';
   var CHAVE = 'consentimento-cookies';
   var CHAVE_ORIGEM = 'origem-visita';
-  var MENSAGEM = 'Olá. Vim pelo site da SMA e gostaria de conversar sobre uma operação.';
+  var MENSAGEM = 'Olá. Vim pelo site da SMA e gostaria de falar com um advogado sobre um investimento imobiliário.';
   var ASSUNTOS = { // utm_campaign -> "sobre ..."
-    'leads-incorporadores': 'sobre incorporação e patrimônio de afetação'
+    'leads-incorporadores': 'sobre proteção de investimentos imobiliários'
   };
 
   function guardado(chave, valor) {
@@ -98,7 +98,7 @@
     var abertura = MENSAGEM;
     if (dados) {
       var assunto = ASSUNTOS[dados.campanha];
-      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : '') + ' e gostaria de conversar sobre uma operação.';
+      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : '') + ' e gostaria de falar com um advogado sobre um investimento imobiliário.';
     }
     document.addEventListener('click', function (e) {
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me"]');
