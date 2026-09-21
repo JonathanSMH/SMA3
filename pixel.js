@@ -14,7 +14,7 @@
   var PIXEL_ID = '1104154028678334';
   var CHAVE = 'consentimento-cookies';
   var CHAVE_ORIGEM = 'origem-visita';
-  var MENSAGEM = 'Olá. Vim pelo site da SMA e gostaria de falar com um advogado sobre um investimento imobiliário.';
+  var MENSAGEM = 'Olá. Vim pelo site da SMA e quero falar com um advogado.';
   var ASSUNTOS = { // utm_campaign -> "sobre ..."
     'leads-incorporadores': 'sobre proteção de investimentos imobiliários'
   };
@@ -98,7 +98,7 @@
     var abertura = MENSAGEM;
     if (dados) {
       var assunto = ASSUNTOS[dados.campanha];
-      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : ' da SMA') + ' e gostaria de falar com um advogado.';
+      abertura = 'Olá. Vi o seu anúncio' + (assunto ? ' ' + assunto : ' da SMA') + ' e quero falar com um advogado.';
     }
     document.addEventListener('click', function (e) {
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me"]');
@@ -109,9 +109,43 @@
     }, true);
   }
 
+  /* ---------------- WhatsApp pelo app ----------------
+     No celular, o wa.me aberto de dentro do Instagram passa por uma tela
+     intermediaria que no iPhone muitas vezes nao abre o aplicativo (em
+     15-20/09, 2 toques e nenhuma mensagem). O esquema whatsapp:// abre o app
+     direto; se em 1,5 s a pagina continuar visivel, cai no wa.me como antes.
+     Corre na borbulha, depois da reescrita do texto e sem parar a propagacao,
+     para o Pixel continuar contando o Lead. */
+  function abrirNoApp() {
+    if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+      var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me/"]');
+      if (!a) return;
+      var destino;
+      try { destino = new URL(a.href); } catch (err) { return; }
+      var telefone = destino.pathname.replace(/\D/g, '');
+      if (!telefone) return;
+      e.preventDefault();
+      var texto = destino.searchParams.get('text') || '';
+      var esquema = 'whatsapp://send?phone=' + telefone + (texto ? '&text=' + encodeURIComponent(texto) : '');
+      var reserva = destino.toString();
+      var inicio = Date.now();
+      var temporizador = setTimeout(function () {
+        if (document.visibilityState === 'hidden' || Date.now() - inicio > 2500) return;
+        window.location.href = reserva;
+      }, 1500);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') clearTimeout(temporizador);
+      }, { once: true });
+      window.location.href = esquema;
+    });
+  }
+
   /* ---------------- arranque ---------------- */
   function iniciar() {
     origem();
+    abrirNoApp();
     var escolha = guardado(CHAVE);
     if (escolha === 'nao') return;
     carregarPixel();
