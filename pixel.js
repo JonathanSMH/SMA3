@@ -87,7 +87,7 @@
       var url = new URL(window.location.href);
       var fonte = url.searchParams.get('utm_source');
       if (fonte) {
-        dados = { fonte: fonte, campanha: url.searchParams.get('utm_campaign') || '' };
+        dados = { fonte: fonte, campanha: url.searchParams.get('utm_campaign') || '', conteudo: url.searchParams.get('utm_content') || '' };
         sessionStorage.setItem(CHAVE_ORIGEM, JSON.stringify(dados));
       } else {
         var g = sessionStorage.getItem(CHAVE_ORIGEM);
@@ -104,9 +104,64 @@
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me"]');
       if (!a) return;
       var u = new URL(a.href);
-      if (!u.searchParams.get('text')) u.searchParams.set('text', abertura);
+      var texto = u.searchParams.get('text') || abertura;
+      var codigo = gerarCodigo();
+      u.searchParams.set('text', texto + ' #' + codigo);
       a.href = u.toString();
+      gravarRastro(codigo, dados, a);
     }, true);
+  }
+
+  /* ---------------- Rastro da conversa ----------------
+     O codigo de quatro letras no fim da mensagem ("#k7m2") e gravado com o
+     fbp/fbc do Pixel na tabela conversas_origem (projeto smhpatrimonial; a
+     chave publicavel so insere). Quando a mensagem chega no WhatsApp, o
+     webhook casa o codigo e manda o evento Contact para a Meta com a
+     identidade certa: a conversa real passa a contar no Gerenciador. */
+  var SUPABASE_URL = 'https://ixqsetvplcvtocsqqlfb.supabase.co';
+  var SUPABASE_CHAVE = 'sb_publishable_51S32vDenDLCelzUvjwkGQ_4_8mV4Sd';
+  var ALFABETO = 'abcdefghjkmnpqrstuvwxyz23456789';
+  function gerarCodigo() {
+    var n = new Uint8Array(4);
+    crypto.getRandomValues(n);
+    var c = '';
+    for (var i = 0; i < 4; i++) c += ALFABETO[n[i] % ALFABETO.length];
+    return c;
+  }
+  function cookie(nome) {
+    var partes = document.cookie.split('; ');
+    for (var i = 0; i < partes.length; i++) {
+      if (partes[i].indexOf(nome + '=') === 0) return partes[i].slice(nome.length + 1);
+    }
+    return null;
+  }
+  function gravarRastro(codigo, dados, a) {
+    var secao = a.closest && a.closest('section');
+    var linha = {
+      codigo: codigo,
+      site: 'smaadvogados',
+      fbp: cookie('_fbp'),
+      fbc: cookie('_fbc'),
+      utm_source: dados ? dados.fonte : null,
+      utm_campaign: dados ? dados.campanha : null,
+      utm_content: dados ? (dados.conteudo || null) : null,
+      pagina: window.location.pathname + window.location.hash,
+      botao: (secao && secao.id) || 'outro',
+      agente: navigator.userAgent.slice(0, 256)
+    };
+    try {
+      fetch(SUPABASE_URL + '/rest/v1/conversas_origem', {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_CHAVE,
+          Authorization: 'Bearer ' + SUPABASE_CHAVE,
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify(linha)
+      }).catch(function () {});
+    } catch (err) {}
   }
 
   /* ---------------- WhatsApp pelo app ----------------
