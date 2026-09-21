@@ -527,3 +527,24 @@
     document.addEventListener("mouseenter", () => { if (shown) lgCursor.classList.add("ready"); });
   }
 })();
+
+/* ---------- botão flutuante de WhatsApp ---------- */
+(function () {
+  var botao = document.querySelector('.zap-flutuante');
+  var contato = document.getElementById('contato');
+  if (!botao) return;
+  var passouHero = false, contatoNaTela = false;
+  function aplicar() { botao.classList.toggle('visivel', passouHero && !contatoNaTela); }
+  function aoRolar() {
+    passouHero = window.scrollY > window.innerHeight * 0.8;
+    aplicar();
+  }
+  window.addEventListener('scroll', aoRolar, { passive: true });
+  aoRolar();
+  if (contato && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entradas) {
+      contatoNaTela = entradas[0].isIntersecting;
+      aplicar();
+    }, { threshold: 0.15 }).observe(contato);
+  }
+})();
