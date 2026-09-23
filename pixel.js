@@ -12,6 +12,7 @@
      entram na mensagem que abre no WhatsApp. */
 (function () {
   var PIXEL_ID = '1104154028678334';
+  var ultimoLead = 0, ultimoToque = 0, ultimoCodigo = '';
   var CHAVE = 'consentimento-cookies';
   var CHAVE_ORIGEM = 'origem-visita';
   var MENSAGEM = 'Olá. Vim pelo site da SMA e quero falar com um advogado.';
@@ -42,6 +43,8 @@
   function ligarEventos() {
     document.addEventListener('click', function (e) {
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me"], a[href^="mailto:"], a[href^="tel:"]');
+      if (a && Date.now() - ultimoLead < 5000) return;
+      if (a) ultimoLead = Date.now();
       if (!a || !window.fbq) return;
       var href = a.getAttribute('href') || '';
       var canal = href.indexOf('wa.me') >= 0 ? 'whatsapp' : href.indexOf('mailto:') === 0 ? 'email' : 'telefone';
@@ -105,7 +108,14 @@
       if (!a) return;
       var u = new URL(a.href);
       var texto = u.searchParams.get('text') || abertura;
+      if (Date.now() - ultimoToque < 5000 && ultimoCodigo) {
+        u.searchParams.set('text', texto + ' #' + ultimoCodigo);
+        a.href = u.toString();
+        return;
+      }
+      ultimoToque = Date.now();
       var codigo = gerarCodigo();
+      ultimoCodigo = codigo;
       u.searchParams.set('text', texto + ' #' + codigo);
       a.href = u.toString();
       gravarRastro(codigo, dados, a);
@@ -172,7 +182,10 @@
      Corre na borbulha, depois da reescrita do texto e sem parar a propagacao,
      para o Pixel continuar contando o Lead. */
   function abrirNoApp() {
-    if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
+    /* So no iPhone: no Android o navegador do Instagram bloqueia whatsapp://
+       e a pessoa fica tocando sem nada acontecer (21-23/09: toques repetidos
+       em 1-2 s, todos Android). La o wa.me abre o app. */
+    if (!/iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
     document.addEventListener('click', function (e) {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
       var a = e.target && e.target.closest && e.target.closest('a[href*="wa.me/"]');
